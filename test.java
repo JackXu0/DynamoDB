@@ -2,6 +2,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ArrayBlockingQueue;
+
 /*
 public class ThreadTest {
     public static class MyThread extends Thread {
@@ -20,51 +21,9 @@ public class Test {
   // Special stop message to tell the worker to stop.
   public static final Message Stop = new Message("Stop!");
 
-  static class Message {
-    final String msg;
+  static Map<Integer, BlockingQueue<Message>> queues = new HashMap<Integer, BlockingQueue<Message>>();
 
-    // A message to a worker.
-    public Message(String msg) {
-      this.msg = msg;
-    }
-
-    public String toString() {
-      return msg;
-    }
-
-  }
-
-  class Worker implements Runnable {
-    private volatile boolean stop = false;
-    private final BlockingQueue<Message> workQueue;
-
-    public Worker(BlockingQueue<Message> workQueue) {
-      this.workQueue = workQueue;
-    }
-
-    @Override
-    public void run() {
-      while (!stop) {
-        try {
-          Message msg = workQueue.poll(10, TimeUnit.SECONDS);
-          // Handle the message ...
-
-          System.out.println("Worker " + Thread.currentThread().getName() + " got message " + msg);
-          // Is it my special stop message.
-          if (msg == Stop) {
-            stop = true;
-          }
-        } catch (InterruptedException ex) {
-          // Just stop on interrupt.
-          stop = true;
-        }
-      }
-    }
-  }
-
-  Map<Integer, BlockingQueue<Message>> queues = new HashMap<Integer, BlockingQueue<Message>>();
-
-  public void test() throws InterruptedException {
+  static void test() throws InterruptedException {
     // Keep track of my threads.
     List<Thread> threads = new ArrayList<Thread>();
     for (int i = 0; i < 20; i++) {
@@ -94,12 +53,50 @@ public class Test {
     }
   }
 
-  public static void main(String args[]) {
-    try {
-      new Test().test();
-    } catch (Throwable t) {
-      t.printStackTrace(System.err);
-    }
+  public static void main(String args[]) throws InterruptedException {
+    test();
   }
 
+}
+
+class Message {
+  final String msg;
+
+  // A message to a worker.
+  public Message(String msg) {
+    this.msg = msg;
+  }
+
+  public String toString() {
+    return msg;
+  }
+
+}
+
+class Worker implements Runnable {
+  private volatile boolean stop = false;
+  private final BlockingQueue<Message> workQueue;
+
+  public Worker(BlockingQueue<Message> workQueue) {
+    this.workQueue = workQueue;
+  }
+
+  @Override
+  public void run() {
+    while (!stop) {
+      try {
+        Message msg = workQueue.poll(10, TimeUnit.SECONDS);
+        // Handle the message ...
+
+        System.out.println("Worker " + Thread.currentThread().getName() + " got message " + msg);
+        // Is it my special stop message.
+        if (msg == Test.Stop) {
+          stop = true;
+        }
+      } catch (InterruptedException ex) {
+        // Just stop on interrupt.
+        stop = true;
+      }
+    }
+  }
 }
