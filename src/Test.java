@@ -2,6 +2,8 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.ArrayList;
+import java.util.Dictionary;
 
 /*
 public class ThreadTest {
@@ -73,12 +75,23 @@ class Message {
 
 }
 
+class VirtualNode {
+
+}
+
 class Worker implements Runnable {
-    private volatile boolean stop = false;
+    private boolean stop = false;
     private final BlockingQueue<Message> workQueue;
+    private ArrayList Storage;
 
     public Worker(BlockingQueue<Message> workQueue) {
         this.workQueue = workQueue;
+        // later add support to different num of partitions
+        HashMap<String,String> virtualNode1 = new HashMap<String,String>();
+        HashMap<String,String> virtualNode2 = new HashMap<String,String>();
+        this.Storage = new ArrayList();
+        this.Storage.add(virtualNode1);
+        this.Storage.add(virtualNode2);
     }
 
     @Override
@@ -100,3 +113,41 @@ class Worker implements Runnable {
         }
     }
 }
+
+class Master implements Runnable {
+    private boolean stop = false;
+    private ArrayList workers;
+    private Integer num_Workers;
+    private Integer num_VN;
+    private HashMap<Integer, Pair<Worker, Integer>> VN_to_worker;
+
+    public Master(ArrayList<Worker> workers, Integer num_partition) {
+        this.workers = workers;
+        this.num_Workers = workers.size();
+        this.num_VN = this.num_Workers * num_partition;
+        this.VN_to_worker = new HashMap<Integer, Pair<Worker, Integer>>(); //<VN_id, <worker, partition_id>>
+        Integer VN_id = 0;
+        for (Integer VN_partition = 0; VN_partition < num_partition; VN_partition++) {
+            for (Worker worker: workers) {
+                VN_to_worker.put(VN_id, new Pair<Worker, Integer>(worker, VN_partition));
+                VN_id++;
+            }
+        }
+    }
+
+    private Pair<Worker, Integer> getNode(String key) {
+        Integer hashcode = key.hashCode() % this.num_VN;
+        return this.VN_to_worker.get(hashcode);
+    }
+
+
+
+    @Override
+    public void run() {
+        while (!stop) {
+            }
+        }
+    }
+}
+
+
