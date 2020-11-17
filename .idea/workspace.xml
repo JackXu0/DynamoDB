@@ -3,9 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6aa1f235-5ab1-4bee-88e9-ac67cdfe7558" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/Message.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/Message.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/Test.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/Test.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/Worker.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/Worker.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Test.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
