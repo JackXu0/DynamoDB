@@ -2,21 +2,9 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.ArrayList;
+import java.util.Dictionary;
 
-/*
-public class ThreadTest {
-    public static class MyThread extends Thread {
-        public void run() {
-            System.out.println("Hello");
-        }
-    }
-
-    public static void main(String[] args) {
-        MyThread thread = new MyThread();
-        thread.start();
-    }
-}
-*/
 public class Test {
     // Special stop message to tell the worker to stop.
     public static final Message Stop = new Message("Stop!");
@@ -73,12 +61,27 @@ class Message {
 
 }
 
+class VirtualNode {
+
+}
+
 class Worker implements Runnable {
-    private volatile boolean stop = false;
+    private boolean stop = false;
     private final BlockingQueue<Message> workQueue;
+    private ArrayList Storage;
 
     public Worker(BlockingQueue<Message> workQueue) {
         this.workQueue = workQueue;
+        // later add support to different num of partitions
+        HashMap<String,String> virtualNode1 = new HashMap<String,String>();
+        HashMap<String,String> virtualNode2 = new HashMap<String,String>();
+        this.Storage = new ArrayList();
+        this.Storage.add(virtualNode1);
+        this.Storage.add(virtualNode2);
+    }
+
+    punlic void store(Integer VN_patition, Pair<String, String> message) {
+        //this.Storage.get(VN_patition).put(message.first(), message.second());
     }
 
     @Override
@@ -100,3 +103,70 @@ class Worker implements Runnable {
         }
     }
 }
+
+class Master implements Runnable {
+    private boolean stop = false;
+    private ArrayList workers;
+    private Integer num_Workers;
+    private Integer num_VN;
+    private Integer num_replication;
+    private HashMap<Integer, Pair<Worker, Integer>> VN_to_worker;
+
+    public Master(ArrayList<Worker> workers, Integer num_partition, Integer num_replication) {
+        this.workers = workers;
+        this.num_replication = num_replication;
+        this.num_Workers = workers.size();
+        this.num_VN = this.num_Workers * num_partition;
+        this.VN_to_worker = new HashMap<Integer, Pair<Worker, Integer>>(); //<VN_id, <worker, partition_id>>
+        Integer VN_id = 0;
+        for (Integer VN_partition = 0; VN_partition < num_partition; VN_partition++) {
+            for (Worker worker: workers) {
+                VN_to_worker.put(VN_id, new Pair<Worker, Integer>(worker, VN_partition));
+                VN_id++;
+            }
+        }
+    }
+
+    private void Save(Pair<String, String> message) {
+        //String key = message.first(0); pseudocode
+        Integer hashcode = key.hashCode() % this.num_VN;
+        Integer save_up_to = hashcode + this.num_replication;
+        Boolean turn_around = false;
+        if (save_up_to >= num_VN) {
+            turn_around = true;
+            save_up_to = save_up_to % num_VN;
+        }
+        while (hashcode < save_up_to || (hashcode > save_up_to && turn_around)) {
+            //pseudocode
+            //(worker, VN_partition) = this.VN_to_worker.get(hashcode);
+            //worker.store(VN_partition, message)
+            hashcode++;
+            if (hashcode >= num_VN) {
+                hashcode = hashcode % num_VN;
+                turn_around = false;
+            }
+        }
+    }
+
+    private Pair<Worker, Integer> getLoc(Pair<String, String> message) {
+        //String key = message.first(0); pseudocode
+        Integer hashcode = key.hashCode() % this.num_VN;
+        return this.VN_to_worker.get(hashcode);
+    }
+
+    private Pair<Worker, Integer> getLoc(String key) {
+        Integer hashcode = key.hashCode() % this.num_VN;
+        return this.VN_to_worker.get(hashcode);
+    }
+
+
+
+    @Override
+    public void run() {
+        while (!stop) {
+            }
+        }
+    }
+}
+
+
