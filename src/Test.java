@@ -60,7 +60,14 @@ class Message {
 
 }
 
-class VirtualNode {
+class VirtualNode{
+    Worker worker;
+    int hash;
+
+    public VirtualNode(Worker worker, int hash){
+        this.worker = worker;
+        this.hash = hash;
+    }
 
 }
 
@@ -79,6 +86,10 @@ class Worker implements Runnable {
         this.Storage.add(virtualNode1);
         this.Storage.add(virtualNode2);
         this.ip = Util.getRandomIP();
+    }
+
+    public String getIP(){
+        return ip;
     }
 
     @Override
