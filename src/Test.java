@@ -67,20 +67,23 @@ class VirtualNode {
 class Worker implements Runnable {
     private boolean stop = false;
     private final BlockingQueue<Message> workQueue;
-    private ArrayList Storage;
+    private ArrayList<VirtualNode> Storage;
+    private String ip;
+    private Integer VN_id;
 
-    public Worker(BlockingQueue<Message> workQueue) {
+    public Worker(BlockingQueue<Message> workQueue, Integer num_partition) {
         this.workQueue = workQueue;
-        // later add support to different num of partitions
-        HashMap<String,String> virtualNode1 = new HashMap<String,String>();
-        HashMap<String,String> virtualNode2 = new HashMap<String,String>();
         this.Storage = new ArrayList();
-        this.Storage.add(virtualNode1);
-        this.Storage.add(virtualNode2);
+        while (num_partition > 0) {
+            Integer hash = Util.getRandomIP().hashCode();
+            VirtualNode VN = new VirtualNode(this, hash);
+            this.Storage.add(VN);
+        }
     }
 
     public void store(Integer VN_patition, Pair<String, String> message) {
         //this.Storage.get(VN_patition).put(message.first(), message.second());
+
     }
 
     @Override
