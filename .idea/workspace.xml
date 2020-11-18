@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-<<<<<<< HEAD
-    <list default="true" id="f5ef7893-b247-4fc1-8944-4c99834c552b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-=======
     <list default="true" id="6aa1f235-5ab1-4bee-88e9-ac67cdfe7558" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Test.java" afterDir="false" />
->>>>>>> 21d94970ae8a0e47ee13182a0ae6dfd3ee6ff54f
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,11 +13,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-<<<<<<< HEAD
-  <component name="ProjectId" id="1kPIBECnL2Q6005k9pntqJ8Ta4e" />
-=======
   <component name="ProjectId" id="1kPIZCyGgzbvUp9C9Du9UBFGv9I" />
->>>>>>> 21d94970ae8a0e47ee13182a0ae6dfd3ee6ff54f
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -30,12 +21,9 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-<<<<<<< HEAD
-=======
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
->>>>>>> 21d94970ae8a0e47ee13182a0ae6dfd3ee6ff54f
   </component>
   <component name="RunManager">
     <configuration name="Test" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
@@ -56,16 +44,6 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-<<<<<<< HEAD
-      <changelist id="f5ef7893-b247-4fc1-8944-4c99834c552b" name="Default Changelist" comment="" />
-      <created>1605595661287</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1605595661287</updated>
-    </task>
-    <servers />
-  </component>
-=======
       <changelist id="6aa1f235-5ab1-4bee-88e9-ac67cdfe7558" name="Default Changelist" comment="" />
       <created>1605595852471</created>
       <option name="number" value="Default" />
@@ -100,5 +78,4 @@
     </state>
     <state x="208" y="31" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1605623980641" />
   </component>
->>>>>>> 21d94970ae8a0e47ee13182a0ae6dfd3ee6ff54f
 </project>
