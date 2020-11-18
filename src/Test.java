@@ -79,7 +79,7 @@ class Worker implements Runnable {
         this.Storage.add(virtualNode2);
     }
 
-    punlic void store(Integer VN_patition, Pair<String, String> message) {
+    public void store(Integer VN_patition, Pair<String, String> message) {
         //this.Storage.get(VN_patition).put(message.first(), message.second());
     }
 
