@@ -3,7 +3,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.ArrayList;
-import java.util.Dictionary;
 
 public class Test {
     // Special stop message to tell the worker to stop.
@@ -138,8 +137,9 @@ class Master implements Runnable {
         }
         while (hashcode < save_up_to || (hashcode > save_up_to && turn_around)) {
             //pseudocode
-            //(worker, VN_partition) = this.VN_to_worker.get(hashcode);
-            //worker.store(VN_partition, message)
+            Worker worker = this.VN_to_worker.get(hashcode).First();
+            Integer VN_partition = this.VN_to_worker.get(hashcode).Second();
+            worker.store(VN_partition, message)
             hashcode++;
             if (hashcode >= num_VN) {
                 hashcode = hashcode % num_VN;
@@ -148,7 +148,7 @@ class Master implements Runnable {
         }
     }
 
-    private Pair<Worker, Integer> getLoc(Pair<String, String> message) {
+    private Pair<Worker, Integer> getLoc(Message message) {
         //String key = message.first(0); pseudocode
         Integer hashcode = key.hashCode() % this.num_VN;
         return this.VN_to_worker.get(hashcode);
@@ -165,6 +165,25 @@ class Master implements Runnable {
     public void run() {
         while (!stop) {
             }
+        }
+    }
+
+
+    class Pair<T1, T2> {
+        private T1 first;
+        private T2 second;
+
+        public Pair(T1 x, T2 y) {
+            this.first = x;
+            this.second = y;
+        }
+
+        public T1 First() {
+            return this.first;
+        }
+
+        public T2 Second() {
+            return this.second;
         }
     }
 }
