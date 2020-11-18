@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import javafx.util.Pair;
 
 public class Test {
     // Special stop message to tell the worker to stop.
@@ -45,6 +46,8 @@ public class Test {
         test();
     }
 
+    Pair<Integer, Integer> pair = new Pair();
+
 }
 
 class Message {
@@ -69,6 +72,7 @@ class Worker implements Runnable {
     private boolean stop = false;
     private final BlockingQueue<Message> workQueue;
     private ArrayList Storage;
+    private String ip;
 
     public Worker(BlockingQueue<Message> workQueue) {
         this.workQueue = workQueue;
@@ -78,10 +82,7 @@ class Worker implements Runnable {
         this.Storage = new ArrayList();
         this.Storage.add(virtualNode1);
         this.Storage.add(virtualNode2);
-    }
-
-    punlic void store(Integer VN_patition, Pair<String, String> message) {
-        //this.Storage.get(VN_patition).put(message.first(), message.second());
+        this.ip = Util.getRandomIP();
     }
 
     @Override
