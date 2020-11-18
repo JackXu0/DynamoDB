@@ -60,7 +60,14 @@ class Message {
 
 }
 
-class VirtualNode {
+class VirtualNode{
+    Worker worker;
+    int hash;
+
+    public VirtualNode(Worker worker, int hash){
+        this.worker = worker;
+        this.hash = hash;
+    }
 
 }
 
@@ -84,6 +91,10 @@ class Worker implements Runnable {
     public void store(Integer VN_patition, Pair<String, String> message) {
         //this.Storage.get(VN_patition).put(message.first(), message.second());
 
+    }
+
+    public String getIP(){
+        return ip;
     }
 
     @Override
