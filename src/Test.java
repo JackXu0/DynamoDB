@@ -118,6 +118,7 @@ class Master implements Runnable {
     private Integer num_Workers;
     private Integer num_VN;
     private Integer num_replication;
+    private List<VirtualNode> virtualNodes;
     private HashMap<Integer, Pair<Worker, Integer>> VN_to_worker;
 
     public Master(ArrayList<Worker> workers, Integer num_partition, Integer num_replication) {
@@ -133,6 +134,25 @@ class Master implements Runnable {
                 VN_id++;
             }
         }
+    }
+
+    public void addVirtualNode(VirtualNode vn){
+        for(int i=0; i<virtualNodes.size(); i++){
+            if(virtualNodes.get(i).hash > vn.hash){
+                virtualNodes.add(i, vn);
+                return;
+            }
+        }
+        virtualNodes.add(vn);
+    }
+
+    public VirtualNode findVirtualNode(int hash){
+
+        for(int i=0; i<virtualNodes.size(); i++){
+            if(virtualNodes.get(i).hash > hash)
+                return virtualNodes.get(i);
+        }
+        return virtualNodes.get(0);
     }
 
     private void Save(Pair<String, String> message) {
