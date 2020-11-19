@@ -155,6 +155,10 @@ class Master implements Runnable {
         return virtualNodes.get(0);
     }
 
+    public void deleteVirtualNode(VirtualNode vn){
+        virtualNodes.remove(vn);
+    }
+
     private void Save(Pair<String, String> message) {
         //String key = message.first(0); pseudocode
         Integer hashcode = key.hashCode() % this.num_VN;
