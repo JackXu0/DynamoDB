@@ -3,6 +3,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Test {
     // Special stop message to tell the worker to stop.
@@ -47,11 +48,14 @@ public class Test {
 }
 
 class Message {
-    final String msg;
+    private final boolean get;
+    private final Pair<String, String> msg;
+    private ArrayList<Pair<>> timestamp
 
     // A message to a worker.
-    public Message(String msg) {
+    public Message(Boolean get, Pair<String, String> msg) {
         this.msg = msg;
+        this.get = get;
     }
 
     public String toString() {
@@ -60,13 +64,23 @@ class Message {
 
 }
 
-class VirtualNode{
+class KV {
+    private String key;
+    private String value;
+    private ArrayList<Pair<Worker, Integer>> timestamp;
+}
+
+class VirtualNode {
     Worker worker;
     int hash;
+    int partition;
+    ArrayList<KV> storage;
 
-    public VirtualNode(Worker worker, int hash){
+    public VirtualNode(Worker worker, int hash, int parttiton){
         this.worker = worker;
         this.hash = hash;
+        this.partition = parttiton;
+        this.storage = new ArrayList<>();
     }
 
 }
@@ -74,18 +88,24 @@ class VirtualNode{
 class Worker implements Runnable {
     private boolean stop = false;
     private final BlockingQueue<Message> workQueue;
-    private ArrayList Storage;
-    private String ip;
+    private ArrayList<VirtualNode> VNs;
 
-    public Worker(BlockingQueue<Message> workQueue) {
+    public Worker(BlockingQueue<Message> workQueue, Integer num_partition, Master ) {
         this.workQueue = workQueue;
-        // later add support to different num of partitions
-        HashMap<String,String> virtualNode1 = new HashMap<String,String>();
-        HashMap<String,String> virtualNode2 = new HashMap<String,String>();
-        this.Storage = new ArrayList();
-        this.Storage.add(virtualNode1);
-        this.Storage.add(virtualNode2);
-        this.ip = Util.getRandomIP();
+        this.VNs = new ArrayList();
+        int partition = 0;
+        while (num_partition > 0) {
+            Random rand = new Random();
+            Integer hash = rand.nextInt();
+            VirtualNode VN = new VirtualNode(this, hash, num_partition);
+            this.VNs.add(VN);
+
+        }
+    }
+
+    public void store(Integer VN_patition, Pair<String, String> message) {
+        //this.Storage.get(VN_patition).put(message.first(), message.second());
+
     }
 
     public String getIP(){
