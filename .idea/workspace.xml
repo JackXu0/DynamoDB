@@ -20,6 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f5ef7893-b247-4fc1-8944-4c99834c552b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Test.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -118,12 +119,27 @@
     </state>
     <state x="277" y="37" key="SettingsEditor/-1646.23.1646.922/1920.67.1792.1097/0.0.1920.1080@0.0.1920.1080" timestamp="1605680691638" />
     <state x="208" y="31" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1605623980641" />
-    <state x="-1182" y="187" key="run.anything.popup" timestamp="1605685673833">
-      <screen x="-1644" y="23" width="1644" height="922" />
+    <state x="-1186" y="187" key="run.anything.popup" timestamp="1605812630804">
+      <screen x="-1650" y="23" width="1650" height="922" />
     </state>
     <state x="-1182" y="187" key="run.anything.popup/-1644.23.1644.922/1920.67.1792.1097/0.23.1920.1057@-1644.23.1644.922" timestamp="1605685673833" />
     <state x="-1133" y="223" key="run.anything.popup/-1645.23.1645.922/1920.67.1792.1097/0.23.1920.1057@-1645.23.1645.922" timestamp="1605682665514" />
+    <state x="-1186" y="187" key="run.anything.popup/-1650.23.1650.922/0.23.1920.1057@-1650.23.1650.922" timestamp="1605812630804" />
     <state x="-1182" y="187" key="run.anything.popup/-1680.0.1680.945/1920.44.1792.1120/0.0.1920.1080@-1680.0.1680.945" timestamp="1605685672553" />
     <state x="625" y="255" key="run.anything.popup/-1680.0.1680.945/1920.44.1792.1120/0.0.1920.1080@0.0.1920.1080" timestamp="1605680793447" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/src/Test.java</url>
+          <line>117</line>
+          <properties class="Worker" method="&lt;init&gt;">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
