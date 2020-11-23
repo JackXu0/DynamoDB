@@ -127,18 +127,4 @@
     <state x="-1182" y="187" key="run.anything.popup/-1680.0.1680.945/1920.44.1792.1120/0.0.1920.1080@-1680.0.1680.945" timestamp="1605685672553" />
     <state x="625" y="255" key="run.anything.popup/-1680.0.1680.945/1920.44.1792.1120/0.0.1920.1080@0.0.1920.1080" timestamp="1605680793447" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-method">
-          <url>file://$PROJECT_DIR$/src/Test.java</url>
-          <line>117</line>
-          <properties class="Worker" method="&lt;init&gt;">
-            <option name="EMULATED" value="true" />
-          </properties>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
 </project>
