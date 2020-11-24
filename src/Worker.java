@@ -119,6 +119,11 @@ public class Worker implements Runnable {
 //                        int partition_id = virtual_nodes_ring.getCoordinatorNode(hash).partition;
 //                        // Add this key value pair to storage
 //                        storage.get(partition_id).add(msg.key, msg.value, this);
+//                        // Get versions of this new KV pair
+//                        Map<Worker, Integer> versions = storage.get(partition_id).getVersions(msg.key);
+//                        String value = storage.get(partition_id).getValue(msg.key);
+//                        // Create a KV Pair
+//                        KVPair kvPair = new KVPair(msg.key, value, versions);
 //                        // Add to merkle tree
 //
 //                        // Broadcast to the following N-1 workers

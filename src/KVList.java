@@ -35,7 +35,7 @@ public class KVList {
         return this.list.get(key).first();
     }
 
-    public Map<Worker, Integer> getTimeStamp(String key) {
+    public Map<Worker, Integer> getVersions(String key) {
         return this.list.get(key).second();
     }
 }
