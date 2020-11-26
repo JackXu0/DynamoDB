@@ -9,7 +9,10 @@ public class Worker implements Runnable {
     List<String> membership_changing_history = new ArrayList<>();
     // List<VirtualNode> storing the ring of virtual nodes
     // this is my VNs on creation
-    private VirtualNodeRing virtual_nodes_ring;;
+    private VirtualNodeRing virtual_nodes_ring;
+    private int partition;
+    private int read;
+    private int write;
     // Map<Worker, Boolean> storing the status for each worker node
     private Map<Worker,Boolean> worker_map = new HashMap<>(); //(worker, up or down)
     //TODO: Add a field indicating whether this worker is a seed
@@ -21,10 +24,10 @@ public class Worker implements Runnable {
     private int num_failed_workers;
 
     //TODO: Add a Merkel tree for each partition
-    private ArrayList<MerkleTree> storage_record = new ArrayList();
+    private ArrayList<MerkleTree> storage_record;
 
     //TODO: Add a field Map<String, String> records storing all key-value pairs
-    private  ArrayList<KVList> storage = new ArrayList();
+    private  ArrayList<KVList> storage;
 
     private boolean stop = false;
     public BlockingQueue<Message> message_queue;
@@ -40,21 +43,30 @@ public class Worker implements Runnable {
     }
 
 
-    public Worker(BlockingQueue<Message> message_queue, Integer num_partition) {
+    public Worker(BlockingQueue<Message> message_queue, Integer num_partition, Integer read, Integer write) {
         this.message_queue = message_queue;
-
-        int partition = 0;
+        this.partition = num_partition;
+        this.read = read;
+        this.write = write;
         while (num_partition > 0) {
             Random rand = new Random();
             Integer hash = rand.nextInt();
             VirtualNode VN = new VirtualNode(this, hash, num_partition);
-            this.virtual_nodes_ring.put(hash, VN);
-
+            SortedMap<Integer, VirtualNode> virtual_node_ring= new TreeMap<>();
+            virtual_node_ring.put(hash, VN);
+            this.virtual_nodes_ring = new VirtualNodeRing(virtual_node_ring);
+            num_partition--;
         }
+        this.storage_record = new ArrayList();
+        this.storage = new ArrayList();
     }
 
     public VirtualNodeRing getVirtualNodesRing() {
         return virtual_nodes_ring;
+    }
+
+    public void getMessage(Message msg) {
+        this.message_queue.add(msg);
     }
 
     //TODO: Handle messages from clients

@@ -84,6 +84,22 @@ public class Master {
 
     public static void main(String args[]) throws InterruptedException {
 //        test();
+        BlockingQueue<Message> message_queue1 = new ArrayBlockingQueue(1024);
+        BlockingQueue<Message> message_queue2 = new ArrayBlockingQueue(1024);
+        Message m1 = new Message(0, "first", "1");
+        Message m2 = new Message(0, "second", "2");
+        Message m3 = new Message(0, "third", "3");
+        Message m4 = new Message(0, "third", "4");
+        message_queue1.add(m1);
+        message_queue1.add(m2);
+        message_queue1.add(m3);
+        message_queue2.add(m1);
+        message_queue2.add(m2);
+        message_queue2.add(m4);
+
+        Worker w1 = new Worker(message_queue1, 2);
+        Worker w2 = new Worker(message_queue2, 2);
+        /*
         MerkleTree root = new MerkleTree(2, 0);
 //        root.num = 2;
 //        root.left = new MerkleTree(new KVPair("1", "1", new HashMap<>()));
@@ -128,6 +144,8 @@ public class Master {
         t1.synchroize(t2);
 
         t1.print();
+        */
+
 
     }
 }
