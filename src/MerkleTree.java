@@ -13,6 +13,7 @@ public class MerkleTree {
 
     // copy a merkle tree
     public MerkleTree(MerkleTree tree) {
+        
         this.hash = tree.hash;
         this.left = tree.left;
         this.right = tree.right;
