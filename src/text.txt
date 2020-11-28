@@ -1,0 +1,23 @@
+// two types of request
+
+1. Request to write - coordinator w1 to worker w2:
+    On w2: version on w1 must be larger than version on w2:
+        if true ->
+            return true, update value and version on w2
+        else
+            return false, along with the version on w2
+
+    On w1:
+        if receive true ->
+            pass
+        else
+            update its version to max(w2.version + 1, w1.version)
+            broadcast again
+
+t1, t2
+
+t1.h > t2:
+    find the corresponding left tree
+
+t1.h < t2:
+    enlarge t1, until height is the same

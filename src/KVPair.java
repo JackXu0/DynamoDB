@@ -38,7 +38,7 @@ public class KVPair {
                 maxVersion = worker_version_p2;
                 value = p2.value;
             }
-            versions.put(v.getKey(), Math.max(worker_version_local, v.getValue()));
+            versions.put(v.getKey(), Math.max(worker_version_local, worker_version_p2));
         }
     }
 

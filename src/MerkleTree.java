@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 //TODO: Add hash calculation
 public class MerkleTree {
@@ -12,6 +9,7 @@ public class MerkleTree {
     int height = 1;
     int num = 0; // total number of valid leaves in this root
     KVPair pair = null;
+    Map<Integer, KVPair> buffer = new HashMap<>();
 
     // copy a merkle tree
     public MerkleTree(MerkleTree tree) {
@@ -55,11 +53,24 @@ public class MerkleTree {
         this.pair = pair;
     }
 
-    public void add(KVPair pair){
+    public void add(KVPair pair, Integer pos){
         // check whether the current merkle tree needs to be enlarged, enlarge if needed
+        if (pos > num + 1 || pos <= num) {
+            buffer.put(pos, pair);
+            //////////////
+            if (pos <= num)
+                System.out.println("pos <= num");
+            //////////////
+            return;
+        }
+
         enlargeIfNecessary();
         // add the key value pair to the merkle tree
         add_helper(this, pair);
+        while (buffer.containsKey(num + 1)) {
+            add(buffer.get(num+1), num+1);
+            buffer.remove(num+1);
+        }
     }
 
     public void enlargeIfNecessary(){
