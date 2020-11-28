@@ -97,8 +97,8 @@ public class Master {
         message_queue2.add(m2);
         message_queue2.add(m4);
 
-        Worker w1 = new Worker(message_queue1, 2);
-        Worker w2 = new Worker(message_queue2, 2);
+        Worker w1 = new Worker(message_queue1, 2,1,1);
+        Worker w2 = new Worker(message_queue2, 2,1,1);
         /*
         MerkleTree root = new MerkleTree(2, 0);
 //        root.num = 2;
