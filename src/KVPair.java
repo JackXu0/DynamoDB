@@ -6,9 +6,9 @@ import java.util.Map;
 public class KVPair {
     String key;
     String value;
-    Integer version;
+    int version;
 
-    public KVPair(String key, String value, Integer version) {
+    public KVPair(String key, String value, int version) {
         this.key = key;
         this.value = value;
         this.version = version;
@@ -18,6 +18,11 @@ public class KVPair {
         this.key = p2.key;
         this.value = p2.value;
         this.version = p2.version;
+    }
+
+
+    public int getHash(){
+        return this.version;
     }
 
     /*

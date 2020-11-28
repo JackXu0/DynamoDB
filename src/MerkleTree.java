@@ -1,3 +1,5 @@
+import util.Pair;
+
 import java.util.*;
 
 //TODO: Add hash calculation
@@ -68,7 +70,6 @@ public class MerkleTree {
         enlargeIfNecessary();
         // add the key value pair to the merkle tree
         add_helper(this, pair);
-        System.out.println(buffer.containsKey(num+1));
         while (buffer.containsKey(num + 1)) {
             add(buffer.get(num+1), num+1);
             buffer.remove(num+1);
@@ -100,8 +101,11 @@ public class MerkleTree {
             tree.num++;
             // Update hash and return
             // TODO: add hash calculation
-            int hash_left = (tree.left.pair == null ? 0 : 1);
-            int hash_right = (tree.right.pair == null ? 0 : 1);
+//            System.out.println("left pair"+tree.left.pair.key+","+tree.left.pair.value+","+tree.left.pair.version);
+//            if (tree.right.pair != null)
+//                System.out.println("right pair"+tree.right.pair.key+","+tree.right.pair.value+","+tree.right.pair.version);
+            int hash_left = (tree.left.pair == null ? 0 : tree.left.pair.version);
+            int hash_right = (tree.right.pair == null ? 0 : tree.right.pair.version);
 
             long temp = (hash_left + hash_right) % Integer.MAX_VALUE;
 //            System.out.println("temp:" + temp);
@@ -133,14 +137,12 @@ public class MerkleTree {
 
     public Boolean synchroize(MerkleTree t2){
         List<KVPair> res = new ArrayList<>();
-        for (KVPair i : res) {
-                System.out.println(i.key + i.value + i.version);
-        }
+
         //TODO: apply changes in res
-        return synchronize_helper(this, t2, res);
+        return synchronize_helper(this, t2, res).first();
     }
 
-    private Boolean synchronize_helper(MerkleTree t1, MerkleTree t2, List<KVPair> res){
+    private Pair<Boolean, Integer> synchronize_helper(MerkleTree t1, MerkleTree t2, List<KVPair> res){
         Boolean send = false;
         if(t1.height > t2.height)
             return synchronize_helper(t1.left, t2, res);
@@ -159,34 +161,40 @@ public class MerkleTree {
             KVPair p2 = t2.pair;
             if (p2 != null) {
                 if (p1 == null) {
-                    p1 = new KVPair(p2);
-                    res.add(p1);
+                    t1.pair = new KVPair(p2);
+                    res.add(t1.pair);
+                    t1.hash = t1.pair.getHash();
+                    return new Pair<>(false, t1.pair.getHash());
                   //give p1 value
                 } else {
                     if (!p1.key.equals(p2.key)) {
                         System.out.println("Key Not Match: P1 Key: " + p1.key + ", P2 Ley: " + p2.key);
-                        return false;
+                        return new Pair<>(false, p1.getHash());
                     }
 
                     if (p1.version < p2.version) {
                         p1.value = p2.value;
                         p1.version = p2.version;
                         res.add(p1);
+                        return new Pair<>(false, p1.getHash());
                     } else if (p1.version > p2.version) {
-                        return true;
+                        return new Pair<>(true, p1.getHash());
                     } else {
                         System.out.println("same version with different values");
-                        return false;
+                        return new Pair<>(false, p1.getHash());
                     }
                 }
             }
-            return false;
+            return new Pair<>(false, t1.hash);
         }
 
         if(t1.hash == t2.hash)
-            return false;
-        send = synchronize_helper(t1.left, t2.left, res);
-        return send || synchronize_helper(t1.right, t2.right, res);
+            return new Pair<>(false, t1.hash);
+        Pair<Boolean, Integer> left = synchronize_helper(t1.left, t2.left, res);
+        Pair<Boolean, Integer> right = synchronize_helper(t1.right, t2.right, res);
+        // TODO: add calculate hash
+        t1.hash = left.second() + right.second();
+        return new Pair<>(left.first() || right.first(), t1.hash);
     }
 
     public void print(){
@@ -200,7 +208,7 @@ public class MerkleTree {
                 if(tree == null)
                     continue;
                 if(tree.height == 1 && tree.pair != null){
-                    System.out.print("Key:"+tree.pair.key+", Value:"+tree.pair.value+", ");
+                    System.out.print("Key:"+tree.pair.key+", Value:"+tree.pair.value+", version:"+tree.pair.version+", ");
                 }else if (height > 1){
                     System.out.print(tree.hash+", ");
                     queue.add(tree.left); queue.add(tree.right);

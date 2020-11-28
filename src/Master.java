@@ -115,10 +115,11 @@ public class Master {
         for(int i=0; i<6; i++){
             root.add(new KVPair(i+"", i+"", 0), i+1);
         }
-        root.add(new KVPair(8+"", 88+"",1), 8);
-        root.add(new KVPair(7+"", 77+"", 0), 7);
+        root.add(new KVPair(7+"", 88+"",1), 8);
+        root.add(new KVPair(6+"", 77+"", 1), 7);
+        root.add(new KVPair(8+"", 77+"", 1), 9);
 
-        for(int i=0; i<9; i++){
+        for(int i=0; i<8; i++){
             root2.add(new KVPair(i+"", i+"", 0), i+1);
         }
         root.print();
