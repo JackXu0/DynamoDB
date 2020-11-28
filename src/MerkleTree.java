@@ -67,6 +67,7 @@ public class MerkleTree {
         enlargeIfNecessary();
         // add the key value pair to the merkle tree
         add_helper(this, pair);
+        System.out.println(buffer.containsKey(num+1));
         while (buffer.containsKey(num + 1)) {
             add(buffer.get(num+1), num+1);
             buffer.remove(num+1);
@@ -74,7 +75,7 @@ public class MerkleTree {
     }
 
     public void enlargeIfNecessary(){
-        if( num == Math.pow(2, height-1)){
+        if( num >= Math.pow(2, height-1)){
             System.out.println("Needs enlarge");
             MerkleTree temp = new MerkleTree(this);
             this.left = temp;
@@ -129,32 +130,62 @@ public class MerkleTree {
         }
     }
 
-    public void synchroize(MerkleTree t2){
+    public Boolean synchroize(MerkleTree t2){
         List<KVPair> res = new ArrayList<>();
-        synchronize_helper(this, t2, res);
+        for (KVPair i : res) {
+                System.out.println(i.key + i.value + i.version);
+        }
+        //TODO: apply changes in res
+        return synchronize_helper(this, t2, res);
     }
 
-    private void synchronize_helper(MerkleTree t1, MerkleTree t2, List<KVPair> res){
+    private Boolean synchronize_helper(MerkleTree t1, MerkleTree t2, List<KVPair> res){
+        Boolean send = false;
         if(t1.height > t2.height)
-            synchronize_helper(t1.left, t2, res);
-        else if(t1.height < t2.height)
-            synchronize_helper(t1, t2.left, res);
+            return synchronize_helper(t1.left, t2, res);
+        else if(t1.height < t2.height) {
+            //System.out.println("t1 height: " + t1.height + ", t2.height: " + t2.height);
+            //t1.print();
+            t1.num = t2.num;
+            //System.out.println(""+t1.num + " " +t2.num);
+            t1.enlargeIfNecessary();
+            //System.out.println("T1 after enlarge: ");
+            //t1.print();
+            return synchronize_helper(t1, t2, res);
+        }
         if(t1.height == 1){
             KVPair p1 = t1.pair;
             KVPair p2 = t2.pair;
-            if(!p1.key.equals(p2.key)){
-                System.out.println("Key Not Match: P1 Key: "+p1.key+", P2 Ley: "+p2.key);
-            }else{
-                p1.update(p2);
+            if (p2 != null) {
+                if (p1 == null) {
+                    p1 = new KVPair(p2);
+                    res.add(p1);
+                  //give p1 value
+                } else {
+                    if (!p1.key.equals(p2.key)) {
+                        System.out.println("Key Not Match: P1 Key: " + p1.key + ", P2 Ley: " + p2.key);
+                        return false;
+                    }
+
+                    if (p1.version < p2.version) {
+                        p1.value = p2.value;
+                        p1.version = p2.version;
+                        res.add(p1);
+                    } else if (p1.version > p2.version) {
+                        return true;
+                    } else {
+                        System.out.println("same version with different values");
+                        return false;
+                    }
+                }
             }
-            res.add(p1);
-            return;
+            return false;
         }
 
         if(t1.hash == t2.hash)
-            return;
-        synchronize_helper(t1.left, t2.left, res);
-        synchronize_helper(t1.right, t2.right, res);
+            return false;
+        send = synchronize_helper(t1.left, t2.left, res);
+        return send || synchronize_helper(t1.right, t2.right, res);
     }
 
     public void print(){

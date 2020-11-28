@@ -101,6 +101,7 @@ public class Master {
 //        Worker w2 = new Worker(message_queue2, 2);
 
         MerkleTree root = new MerkleTree(2, 0);
+        MerkleTree root2 = new MerkleTree(2, 0);
 //        root.num = 2;
 //        root.left = new MerkleTree(new KVPair("1", "1", new HashMap<>()));
 //        root.right = new MerkleTree(new KVPair("2", "2", new HashMap<>()));
@@ -111,10 +112,22 @@ public class Master {
 //        root.enlargeIfNecessary();
 
 //        // Test for merkle tree insertion
-        for(int i=0; i<10; i++){
-            root.add(new KVPair(i+"", i+"", new HashMap<>()));
+        for(int i=0; i<6; i++){
+            root.add(new KVPair(i+"", i+"", 0), i+1);
+        }
+        root.add(new KVPair(8+"", 88+"",1), 8);
+        root.add(new KVPair(7+"", 77+"", 0), 7);
+
+        for(int i=0; i<9; i++){
+            root2.add(new KVPair(i+"", i+"", 0), i+1);
         }
         root.print();
+        root2.print();
+        Boolean s = root2.synchroize(root);
+        root2.print();
+
+        System.out.println(s);
+
 //
 //        // Test for KVPair update
 //        Worker w1 = new Worker();
