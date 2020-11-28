@@ -6,28 +6,32 @@ import java.util.Map;
 public class KVPair {
     String key;
     String value;
-    int maxVersion = -1;
-    Map<Worker, Integer> versions = new HashMap<>();
+    Integer version;
 
-    public KVPair(String key, String value, Map<Worker, Integer> versions) {
+    public KVPair(String key, String value, Integer version) {
         this.key = key;
         this.value = value;
-        this.versions = versions;
-        setMaxVersion();
+        this.version = version;
     }
 
-    public void update(String key, String value, Worker worker, int version){
+    public KVPair(KVPair p2) {
+        this.key = p2.key;
+        this.value = p2.value;
+        this.version = p2.version;
+    }
+
+    /*
+    public void update(String key, String value, int version){
         if(!this.key.equals(key))
             System.out.println("Add Version Error: Key not match!");
 
         // Check whether this version > max_version
-        if (version > maxVersion){
-            this.value = value;
-            maxVersion = version;
-        }
+
 
         // Update the version of worker
-        versions.put(worker, version);
+        this.version = version;
+
+
     }
 
     public void update(KVPair p2){
@@ -41,9 +45,5 @@ public class KVPair {
             versions.put(v.getKey(), Math.max(worker_version_local, worker_version_p2));
         }
     }
-
-    private void setMaxVersion(){
-        for(Integer v : versions.values())
-            maxVersion = Math.max(v, maxVersion);
-    }
+    */
 }
