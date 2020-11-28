@@ -21,11 +21,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f5ef7893-b247-4fc1-8944-4c99834c552b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/KVPair.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/KVPair.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/Master.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/Master.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/MerkleTree.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/MerkleTree.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/KVPair.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/KVPair.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Master.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Master.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/KVList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/KVList.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MerkleTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MerkleTree.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
