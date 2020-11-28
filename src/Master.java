@@ -84,67 +84,68 @@ public class Master {
 
     public static void main(String args[]) throws InterruptedException {
 //        test();
-        BlockingQueue<Message> message_queue1 = new ArrayBlockingQueue(1024);
-        BlockingQueue<Message> message_queue2 = new ArrayBlockingQueue(1024);
-        Message m1 = new Message(0, "first", "1");
-        Message m2 = new Message(0, "second", "2");
-        Message m3 = new Message(0, "third", "3");
-        Message m4 = new Message(0, "third", "4");
-        message_queue1.add(m1);
-        message_queue1.add(m2);
-        message_queue1.add(m3);
-        message_queue2.add(m1);
-        message_queue2.add(m2);
-        message_queue2.add(m4);
+//        BlockingQueue<Message> message_queue1 = new ArrayBlockingQueue(1024);
+//        BlockingQueue<Message> message_queue2 = new ArrayBlockingQueue(1024);
+//        Message m1 = new Message(0, "first", "1");
+//        Message m2 = new Message(0, "second", "2");
+//        Message m3 = new Message(0, "third", "3");
+//        Message m4 = new Message(0, "third", "4");
+//        message_queue1.add(m1);
+//        message_queue1.add(m2);
+//        message_queue1.add(m3);
+//        message_queue2.add(m1);
+//        message_queue2.add(m2);
+//        message_queue2.add(m4);
+//
+//        Worker w1 = new Worker(message_queue1, 2);
+//        Worker w2 = new Worker(message_queue2, 2);
 
-        Worker w1 = new Worker(message_queue1, 2,1,1);
-        Worker w2 = new Worker(message_queue2, 2,1,1);
-        /*
         MerkleTree root = new MerkleTree(2, 0);
 //        root.num = 2;
 //        root.left = new MerkleTree(new KVPair("1", "1", new HashMap<>()));
 //        root.right = new MerkleTree(new KVPair("2", "2", new HashMap<>()));
+//        root.print();
 //        root.enlargeIfNecessary();
 //        root.print();
 //        root.num = 4;
 //        root.enlargeIfNecessary();
 
-        // Test for merkle tree insertion
+//        // Test for merkle tree insertion
         for(int i=0; i<10; i++){
             root.add(new KVPair(i+"", i+"", new HashMap<>()));
         }
         root.print();
+//
+//        // Test for KVPair update
+//        Worker w1 = new Worker();
+//        Worker w2 = new Worker();
+//        HashMap<Worker, Integer> m1 = new HashMap<>();
+//        HashMap<Worker, Integer> m2 = new HashMap<>();
+//        m1.put(w1, 9); m1.put(w2, 10);
+//        m2.put(w1, 1); m2.put(w2, 11);
+//        KVPair p1 =  new KVPair("k1", "v1", m1);
+//        KVPair p2 =  new KVPair("k2", "v2", m2);
+//        p1.update(p2);
+//        System.out.println(p1.value);
+//        for(Integer v : p1.versions.values())
+//            System.out.println(v);
+//
+//        // Test for merkle tree synchronization
+//        // TODO: not finished
+//        MerkleTree t1 = new MerkleTree(2, 0);
+//        MerkleTree t2 = new MerkleTree(2, 0);
+//        for(int i=0; i<3; i++){
+//            t1.add(new KVPair(i+"", i+"", new HashMap<>()));
+//        }
+//        for(int i=0; i<9; i++){
+//            t2.add(new KVPair(i+"", i+"", new HashMap<>()));
+//        }
+//        t1.print();
+//        t2.print();
+//        t1.synchroize(t2);
+//
+//        t1.print();
 
-        // Test for KVPair update
-        Worker w1 = new Worker();
-        Worker w2 = new Worker();
-        HashMap<Worker, Integer> m1 = new HashMap<>();
-        HashMap<Worker, Integer> m2 = new HashMap<>();
-        m1.put(w1, 9); m1.put(w2, 10);
-        m2.put(w1, 1); m2.put(w2, 11);
-        KVPair p1 =  new KVPair("k1", "v1", m1);
-        KVPair p2 =  new KVPair("k2", "v2", m2);
-        p1.update(p2);
-        System.out.println(p1.value);
-        for(Integer v : p1.versions.values())
-            System.out.println(v);
-
-        // Test for merkle tree synchronization
-        // TODO: not finished
-        MerkleTree t1 = new MerkleTree(2, 0);
-        MerkleTree t2 = new MerkleTree(2, 0);
-        for(int i=0; i<3; i++){
-            t1.add(new KVPair(i+"", i+"", new HashMap<>()));
-        }
-        for(int i=0; i<9; i++){
-            t2.add(new KVPair(i+"", i+"", new HashMap<>()));
-        }
-        t1.print();
-        t2.print();
-        t1.synchroize(t2);
-
-        t1.print();
-        */
 
 
     }

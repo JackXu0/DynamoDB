@@ -9,7 +9,7 @@ public class MerkleTree {
     int height = 1;
     int num = 0; // total number of valid leaves in this root
     KVPair pair = null;
-    Map<Integer, KVPair> buffer = new HashMap();
+    Map<Integer, KVPair> buffer = new HashMap<>();
 
     // copy a merkle tree
     public MerkleTree(MerkleTree tree) {
