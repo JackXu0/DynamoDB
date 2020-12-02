@@ -56,6 +56,31 @@ public class MerkleTree {
         this.pair = pair;
     }
 
+    // TODO: PROBLEM: map is not sorted, need sorted container to rebuild
+    public void rebuildMerkleTree(Map<Integer, String> index_to_key,
+                                  Map<String, Pair<String, Integer>> storage) {
+        //this.hash;
+        if (index_to_key.size() == 0)
+            return;
+
+        this.left = null;
+        this.right = null;
+        this.parent = null;
+        this.buffer = new HashMap<>();
+        this.height = 1;
+        this.num = 1;
+        String key = index_to_key.get(1);
+        Pair<String, Integer> info = storage.get(key);
+        this.pair = new KVPair(key, info.first(), info.second());
+        int index = 2;
+        while(index_to_key.containsKey(index)) {
+            key = index_to_key.get(index);
+            info = storage.get(key);
+            this.add(new KVPair(key, info.first(), info.second()), index);
+            index++;
+        }
+    }
+
     public void add(KVPair pair, Integer pos){
         // check whether the current merkle tree needs to be enlarged, enlarge if needed
         if (pos > num + 1 || pos <= num) {
@@ -135,11 +160,12 @@ public class MerkleTree {
         }
     }
 
-    public Boolean synchroize(MerkleTree t2){
+    public Pair<Boolean, List<KVPair>> synchroize(MerkleTree t2){
         List<KVPair> res = new ArrayList<>();
 
         //TODO: apply changes in res
-        return synchronize_helper(this, t2, res).first();
+        Boolean send = synchronize_helper(this, t2, res).first();
+        return new Pair(send, res);
     }
 
     private Pair<Boolean, Integer> synchronize_helper(MerkleTree t1, MerkleTree t2, List<KVPair> res){
