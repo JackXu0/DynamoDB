@@ -21,3 +21,8 @@ t1.h > t2:
 
 t1.h < t2:
     enlarge t1, until height is the same
+
+
+1. Add MD5 hash
+2. Update storage
+3. reconstruct merkle tree
