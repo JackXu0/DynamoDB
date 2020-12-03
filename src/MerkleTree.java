@@ -1,10 +1,10 @@
 import util.Pair;
-
 import java.util.*;
+import java.security.*;
 
 //TODO: Add hash calculation
 public class MerkleTree {
-    int hash; // remember calculate both value and key
+    String hash = ""; // remember calculate both value and key
     MerkleTree left = null;
     MerkleTree right = null;
     MerkleTree parent = null;
@@ -57,10 +57,8 @@ public class MerkleTree {
     }
 
     // TODO: PROBLEM: map is not sorted, need sorted container to rebuild
-    public void rebuildMerkleTree(Map<Integer, String> index_to_key,
-                                  Map<String, Pair<String, Integer>> storage) {
-        //this.hash;
-        if (index_to_key.size() == 0)
+    public void rebuildMerkleTree(LinkedHashMap<String, Pair<String, Integer>> storage) {
+        if (storage.size() == 0)
             return;
 
         this.left = null;
@@ -69,14 +67,13 @@ public class MerkleTree {
         this.buffer = new HashMap<>();
         this.height = 1;
         this.num = 1;
-        String key = index_to_key.get(1);
-        Pair<String, Integer> info = storage.get(key);
-        this.pair = new KVPair(key, info.first(), info.second());
+        Iterator it = storage.entrySet().iterator();
+        Map.Entry<String, Pair<String, Integer>> kv_pair = (Map.Entry<String, Pair<String, Integer>>) it.next();
+        this.pair = new KVPair(kv_pair.getKey(), kv_pair.getValue().first(), kv_pair.getValue().second());
         int index = 2;
-        while(index_to_key.containsKey(index)) {
-            key = index_to_key.get(index);
-            info = storage.get(key);
-            this.add(new KVPair(key, info.first(), info.second()), index);
+        while(it.hasNext()) {
+            kv_pair = (Map.Entry<String, Pair<String, Integer>>) it.next();
+            this.add(new KVPair(kv_pair.getKey(), kv_pair.getValue().first(), kv_pair.getValue().second()), index);
             index++;
         }
     }
@@ -109,11 +106,11 @@ public class MerkleTree {
             this.right = new MerkleTree(height, 0);
             this.left.parent = this; this.right.parent = this;
             this.height += 1;
-            this.hash = this.left.hash + this.right.hash;
+            this.hash = Util.getMD5(this.left.hash + this.right.hash);
         }
     }
 
-    private int add_helper(MerkleTree tree, KVPair pair){
+    private String add_helper(MerkleTree tree, KVPair pair){
         // reach the last non leaf layer
         if(tree.height == 2){
             MerkleTree leaf = new MerkleTree(pair);
@@ -129,34 +126,33 @@ public class MerkleTree {
 //            System.out.println("left pair"+tree.left.pair.key+","+tree.left.pair.value+","+tree.left.pair.version);
 //            if (tree.right.pair != null)
 //                System.out.println("right pair"+tree.right.pair.key+","+tree.right.pair.value+","+tree.right.pair.version);
-            int hash_left = (tree.left.pair == null ? 0 : tree.left.pair.version);
-            int hash_right = (tree.right.pair == null ? 0 : tree.right.pair.version);
+            String hash_left = (tree.left.pair == null ? "" : tree.left.pair.getHash());
+            String hash_right = (tree.right.pair == null ? "" : tree.right.pair.getHash());
 
-            long temp = (hash_left + hash_right) % Integer.MAX_VALUE;
 //            System.out.println("temp:" + temp);
 //            System.out.println("Hash left: "+hash_left +", hash right:" +hash_right);
-            tree.hash = (int) temp;
+            tree.hash = Util.getMD5(hash_left + hash_right);
 
             return tree.hash;
         }else if(tree.num < Math.pow(2, tree.height-1)){
-            long temp = 0;
+            String temp = "";
             if(tree.num < Math.pow(2, tree.height - 2)){
                 temp += add_helper(tree.left, pair);
                 temp += tree.right.hash;
             }else{
-                temp += add_helper(tree.right, pair);
                 temp += tree.left.hash;
+                temp += add_helper(tree.right, pair);
             }
             tree.num++;
 
             // Update hash and return
-            tree.hash = (int) temp;
+            tree.hash = Util.getMD5(temp);
 //            System.out.println("temp:" + temp);
             return tree.hash;
 
         }else{
             System.out.println("Adding exception happens when adding elements to merkle tree");
-            return -1;
+            return "-1";
         }
     }
 
@@ -168,7 +164,7 @@ public class MerkleTree {
         return new Pair(send, res);
     }
 
-    private Pair<Boolean, Integer> synchronize_helper(MerkleTree t1, MerkleTree t2, List<KVPair> res){
+    private Pair<Boolean, String> synchronize_helper(MerkleTree t1, MerkleTree t2, List<KVPair> res){
         Boolean send = false;
         if(t1.height > t2.height)
             return synchronize_helper(t1.left, t2, res);
@@ -214,12 +210,13 @@ public class MerkleTree {
             return new Pair<>(false, t1.hash);
         }
 
-        if(t1.hash == t2.hash)
+        if(t1.hash.equals(t2.hash))
             return new Pair<>(false, t1.hash);
-        Pair<Boolean, Integer> left = synchronize_helper(t1.left, t2.left, res);
-        Pair<Boolean, Integer> right = synchronize_helper(t1.right, t2.right, res);
+        Pair<Boolean, String> left = synchronize_helper(t1.left, t2.left, res);
+        Pair<Boolean, String> right = synchronize_helper(t1.right, t2.right, res);
         // TODO: add calculate hash
-        t1.hash = left.second() + right.second();
+        t1.hash = Util.getMD5(left.second() + right.second());
+        //System.out.println("left: " + left.second() + "; right: " + right.second() + "; result: " + t1.hash);
         return new Pair<>(left.first() || right.first(), t1.hash);
     }
 
