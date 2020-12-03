@@ -91,6 +91,8 @@ public class Worker implements Runnable {
         String[] local_hash_arr = this.virtual_nodes_ring.getVirtualNodeHashArray();
 
         
+
+        
     }
 
     public VirtualNodeRing getVirtualNodesRing() {
