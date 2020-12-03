@@ -25,4 +25,16 @@ t1.h < t2:
 
 1. Add MD5 hash
 2. Update storage
-3. reconstruct merkle tree
+3. reconstruct merkle
+
+Message Type ID:
+
+    //TODO: Function to request synchronization (virtual_nodes_ring, worker)
+    //TODO: Function to request synchronization (membership_changing_history)
+    //TODO: Function to request synchronization (merkel_tree)
+    //TODO: Function to request synchronization (storage)
+
+    //TODO: Function to handle response (virtual_nodes_ring, worker_map) -- update merkel tree if necessary
+    //TODO: Function to handle response (membership_changing_history)
+    //TODO: Function to handle response (merkel_tree)
+    //TODO: Function to handle response (storage)

@@ -18,7 +18,7 @@ public class VirtualNodeRing{
         return virtual_nodes_ring.get(virtual_nodes_ring.firstKey());
     }
 
-    public void put(int hash, VirtualNode vn){
-        this.virtual_nodes_ring.put(hash, vn);
+    public void put(VirtualNode vn){
+        this.virtual_nodes_ring.put(vn.hash, vn);
     }
 }

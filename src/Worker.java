@@ -1,8 +1,8 @@
 import util.Pair;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public class Worker implements Runnable {
     // List<String> storing membership changing history
@@ -10,6 +10,8 @@ public class Worker implements Runnable {
     // List<VirtualNode> storing the ring of virtual nodes
     // this is my VNs on creation
     private VirtualNodeRing virtual_nodes_ring;
+    // Name of this worker
+    private String name;
     private int partition;
     private int read;
     private int write;
@@ -18,16 +20,20 @@ public class Worker implements Runnable {
     //TODO: Add a field indicating whether this worker is a seed
     public boolean is_seed = false;
 
+    private Worker seed_worker;
 
     //TODO: Add total number of workers, and total number of failed workers
     private int num_workers;
     private int num_failed_workers;
 
+    // All corresponding virtual nodes
+    private List<VirtualNode> virtualNodes;
+
     //TODO: Add a Merkel tree for each partition
-    private ArrayList<MerkleTree> storage_record;
+    private ArrayList<MerkleTree> merkleTrees;
 
     //TODO: Add a field Map<String, String> records storing all key-value pairs
-    private  ArrayList<KVList> storage;
+    private  ArrayList<KVPairsPerPartition> storage;
 
     private boolean stop = false;
     public BlockingQueue<Message> message_queue;
@@ -38,27 +44,50 @@ public class Worker implements Runnable {
     // TODO: constructor should be Worker(Worker seed)
 
     // empty constructor
-    public Worker() {
-
+    public Worker(String name) {
+        this.name = name;
     }
 
+    // Create a new worker node
+    // 1. create all virtual nodes, and inform the seed node
+    // 2. initialize the message queue
+    // 3. initialize merkle trees
+    // 4. initialize storage
 
-    public Worker(BlockingQueue<Message> message_queue, Integer num_partition, Integer read, Integer write) {
-        this.message_queue = message_queue;
+    public Worker(String name, Worker seed_worker, Integer num_partition, Integer read, Integer write) {
+        this.name = name;
         this.partition = num_partition;
         this.read = read;
         this.write = write;
+        this.seed_worker = seed_worker;
+        this.virtualNodes = new ArrayList<>();
+        // TODO: Modified here
+        SortedMap<Integer, VirtualNode> virtual_node_ring= new TreeMap<>();
         while (num_partition > 0) {
             Random rand = new Random();
             Integer hash = rand.nextInt();
             VirtualNode VN = new VirtualNode(this, hash, num_partition);
-            SortedMap<Integer, VirtualNode> virtual_node_ring= new TreeMap<>();
+            //TODO: inform the seed node
             virtual_node_ring.put(hash, VN);
-            this.virtual_nodes_ring = new VirtualNodeRing(virtual_node_ring);
+            virtualNodes.add(VN);
             num_partition--;
         }
-        this.storage_record = new ArrayList();
+        this.virtual_nodes_ring = new VirtualNodeRing(virtual_node_ring);
+        this.message_queue = new ArrayBlockingQueue<Message>(1024);
+        this.merkleTrees = new ArrayList();
         this.storage = new ArrayList();
+    }
+
+    // A method for seed worker
+    public void updateVirtualNodeRing(Worker new_worker){
+        for(VirtualNode vn : new_worker.virtualNodes){
+            this.virtual_nodes_ring.put(vn);
+        }
+    }
+
+    //
+    public void updateVirtualNodeRing(VirtualNodeRing new_vnr){
+        Integer[] new_hash_arr = (Integer[]) new_vnr.virtual_nodes_ring.keySet().toArray();
     }
 
     public VirtualNodeRing getVirtualNodesRing() {

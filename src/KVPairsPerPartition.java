@@ -3,13 +3,13 @@ import util.Pair;
 import java.util.HashMap;
 import java.util.Map;
 
-public class KVList {
+public class KVPairsPerPartition {
     // Map<key, <value, version id>>
     private Map<String, Pair<String, Integer>> list;
 //    public Map<Integer, String> key_to_hash;
     private Map<Integer, String> index_to_key; //ADD index to key so that we know the order of the map
 
-    public KVList() {
+    public KVPairsPerPartition() {
         this.list = new HashMap<>();
         this.index_to_key = new HashMap<>();
 //        this.hash_to_key = new HashMap<>();

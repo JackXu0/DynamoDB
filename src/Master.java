@@ -16,14 +16,30 @@ public class Master {
 //    public static final Message Stop = new Message("Stop!");
     static final Map<Worker, BlockingQueue<Message>> global_message_queues = new HashMap();
 
+    static final Map<String, Worker> global_workers = new HashMap<>();
+
     static Map<Message, Integer> message_counter = new HashMap<>();
 
     static BlockingQueue<Message> message_queue = new ArrayBlockingQueue(1024);
 
     static Map<Integer, BlockingQueue<Message>> queues = new HashMap<Integer, BlockingQueue<Message>>();
 
+    static private int partition_num = 3;
+    static private int R = 2;
+    static private int W = 2;
+
+//    // initialize global message queue and global workers map
+//    static private void initialize_global_message_queues(int total_number_of_potential_workers){
+//        for(int i=0; i<total_number_of_potential_workers; i++){
+//            String name = "" + ('A' + i);
+//            Worker w = new Worker(name);
+//            global_message_queues.put(w, new ArrayBlockingQueue(1024));
+//            global_workers.put(name, w);
+//        }
+//    }
+//
     // Temporary seed worker
-    static Worker seed_worker = new Worker();
+    static Worker seed_worker = global_workers.get("A");
 
     static void make_request(Message msg){
         // Get virtual nodes ring from a seed worker
@@ -33,6 +49,7 @@ public class Master {
         // Find worker
         Worker worker = coordinator_node.worker;
         // Starting count response for this message
+        // TODO: may be deleted
         message_counter.put(msg, 0);
         // Put message to worker's message queue
         worker.message_queue.add(msg);
@@ -49,6 +66,16 @@ public class Master {
         Message msg = new Message(1, key);
         make_request(msg);
     }
+
+    //TODO: method to add a worker into the system
+    static void add_worker(String name){
+        Worker w = new Worker("A", partition_num, R, W);
+        global_message_queues.put(w, w.message_queue);
+        global_workers.put(name, w);
+
+    }
+
+    //TODO: method to remove a worker from the system
 
     //TODO: added a runnable method dealing with message queue
 
