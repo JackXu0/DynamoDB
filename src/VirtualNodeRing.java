@@ -3,15 +3,15 @@ import java.util.Map;
 import java.util.SortedMap;
 
 public class VirtualNodeRing{
-    SortedMap<Integer, VirtualNode> virtual_nodes_ring;
+    SortedMap<String, VirtualNode> virtual_nodes_ring;
 
-    public VirtualNodeRing(SortedMap<Integer, VirtualNode> virtual_nodes_ring) {
+    public VirtualNodeRing(SortedMap<String, VirtualNode> virtual_nodes_ring) {
         this.virtual_nodes_ring = virtual_nodes_ring;
     }
 
-    public VirtualNode getCoordinatorNode(int hash){
-        for(Map.Entry<Integer, VirtualNode> entry : virtual_nodes_ring.entrySet()){
-            if(entry.getKey() > hash)
+    public VirtualNode getCoordinatorNode(String hash){
+        for(Map.Entry<String, VirtualNode> entry : virtual_nodes_ring.entrySet()){
+            if(entry.getKey().compareTo(hash) > 0)
                 return entry.getValue();
         }
 
@@ -20,5 +20,9 @@ public class VirtualNodeRing{
 
     public void put(VirtualNode vn){
         this.virtual_nodes_ring.put(vn.hash, vn);
+    }
+
+    public String[] getVirtualNodeHashArray(){
+        return (String[]) virtual_nodes_ring.keySet().toArray();
     }
 }

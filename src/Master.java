@@ -47,7 +47,7 @@ public class Master {
         // Get virtual nodes ring from a seed worker
         VirtualNodeRing virtual_nodes_ring = seed_worker.getVirtualNodesRing();
         // Find coordinator node
-        VirtualNode coordinator_node = virtual_nodes_ring.getCoordinatorNode(msg.key.hashCode());
+        VirtualNode coordinator_node = virtual_nodes_ring.getCoordinatorNode(Util.getMD5(msg.key));
         // Find worker
         Worker worker = coordinator_node.worker;
         // Starting count response for this message
@@ -71,7 +71,7 @@ public class Master {
 
     //TODO: method to add a worker into the system
     static void add_worker(String name){
-        Worker w = new Worker("A", partition_num, R, W);
+        Worker w = new Worker("A", seed_worker, partition_num, R, W);
         global_message_queues.put(w, w.message_queue);
         global_workers.put(name, w);
 
@@ -112,6 +112,10 @@ public class Master {
 //    }
 
     public static void main(String args[]) throws InterruptedException {
+
+        System.out.println("abb".compareTo("aaa"));
+
+
 //        test();
 //        BlockingQueue<Message> message_queue1 = new ArrayBlockingQueue(1024);
 //        BlockingQueue<Message> message_queue2 = new ArrayBlockingQueue(1024);
@@ -142,26 +146,26 @@ public class Master {
 
 //        // Test for merkle tree insertion
 
-        for(int i=0; i<6; i++){
-            root.add(new KVPair(i+"", i+"", 0), i+1);
-        }
-        root.add(new KVPair(7+"", 88+"",1), 8);
-        root.add(new KVPair(6+"", 77+"", 1), 7);
-        root.add(new KVPair(8+"", 77+"", 1), 9);
-
-        for(int i=0; i<8; i++){
-            root2.add(new KVPair(i+"", i+"", 0), i+1);
-        }
-        root.print();
-        root2.print();
-        Pair<Boolean, List<KVPair>> s = root2.synchroize(root);
-        List<KVPair> need_update = s.second();
-        for (KVPair p : need_update) {
-            System.out.println(p.key + " " + p.value + " " + p.version);
-        }
-        root2.print();
-
-        System.out.println(s);
+//        for(int i=0; i<6; i++){
+//            root.add(new KVPair(i+"", i+"", 0), i+1);
+//        }
+//        root.add(new KVPair(7+"", 88+"",1), 8);
+//        root.add(new KVPair(6+"", 77+"", 1), 7);
+//        root.add(new KVPair(8+"", 77+"", 1), 9);
+//
+//        for(int i=0; i<8; i++){
+//            root2.add(new KVPair(i+"", i+"", 0), i+1);
+//        }
+//        root.print();
+//        root2.print();
+//        Pair<Boolean, List<KVPair>> s = root2.synchroize(root);
+//        List<KVPair> need_update = s.second();
+//        for (KVPair p : need_update) {
+//            System.out.println(p.key + " " + p.value + " " + p.version);
+//        }
+//        root2.print();
+//
+//        System.out.println(s);
 
 
 //

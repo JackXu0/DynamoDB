@@ -62,10 +62,10 @@ public class Worker implements Runnable {
         this.seed_worker = seed_worker;
         this.virtualNodes = new ArrayList<>();
         // TODO: Modified here
-        SortedMap<Integer, VirtualNode> virtual_node_ring= new TreeMap<>();
+        SortedMap<String, VirtualNode> virtual_node_ring= new TreeMap<>();
         while (num_partition > 0) {
             Random rand = new Random();
-            Integer hash = rand.nextInt();
+            String hash = Util.getMD5(rand.nextInt()+"");
             VirtualNode VN = new VirtualNode(this, hash, num_partition);
             //TODO: inform the seed node
             virtual_node_ring.put(hash, VN);
@@ -87,7 +87,10 @@ public class Worker implements Runnable {
 
     //
     public void updateVirtualNodeRing(VirtualNodeRing new_vnr){
-        Integer[] new_hash_arr = (Integer[]) new_vnr.virtual_nodes_ring.keySet().toArray();
+        String[] new_hash_arr = new_vnr.getVirtualNodeHashArray();
+        String[] local_hash_arr = this.virtual_nodes_ring.getVirtualNodeHashArray();
+
+        
     }
 
     public VirtualNodeRing getVirtualNodesRing() {

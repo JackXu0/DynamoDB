@@ -1,4 +1,6 @@
 import util.Pair;
+
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -6,11 +8,11 @@ public class KVPairsPerPartition {
     // Map<key, <value, version id>>
     private LinkedHashMap<String, Pair<String, Integer>> list;
 //    public Map<Integer, String> key_to_hash;
-    //private LinkedHashMap<Integer, String> index_to_key; //ADD index to key so that we know the order of the map
+    private LinkedHashMap<Integer, String> index_to_key; //ADD index to key so that we know the order of the map
 
     public KVPairsPerPartition() {
-        this.list = new HashMap<>();
-        this.index_to_key = new HashMap<>();
+        this.list = new LinkedHashMap<>();
+        this.index_to_key = new LinkedHashMap<>();
     }
 
     public Boolean add(String key, String value, int other_version) {
@@ -33,10 +35,10 @@ public class KVPairsPerPartition {
             list.put(p.key, new Pair(p.value, p.version));
     }
 
-    private int getHash(String key, Pair<String, Integer> pair){
-        long hash = (key.hashCode() + pair.hashCode()) % Integer.MAX_VALUE;
-        return (int) hash;
-    }
+//    private int getHash(String key, Pair<String, Integer> pair){
+//        long hash = (key + pair.hashCode());
+//        return (int) hash;
+//    }
 
     public String getValue(String key) {
         return this.list.get(key).first();
