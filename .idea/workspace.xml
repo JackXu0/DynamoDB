@@ -21,16 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="f5ef7893-b247-4fc1-8944-4c99834c552b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/KVList.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/Master.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/Master.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/VirtualNode.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/VirtualNode.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/VirtualNodeRing.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/VirtualNodeRing.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/Worker.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/Worker.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DynamoDB/text.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DynamoDB/text.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/KVPairsPerPartition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/KVPairsPerPartition.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Master.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Master.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/VirtualNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/VirtualNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/VirtualNodeRing.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/VirtualNodeRing.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Worker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Worker.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
