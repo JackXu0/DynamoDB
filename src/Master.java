@@ -1,3 +1,5 @@
+import util.Pair;
+
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -112,6 +114,7 @@ public class Master {
 //        root.enlargeIfNecessary();
 
 //        // Test for merkle tree insertion
+
         for(int i=0; i<6; i++){
             root.add(new KVPair(i+"", i+"", 0), i+1);
         }
@@ -124,10 +127,15 @@ public class Master {
         }
         root.print();
         root2.print();
-        Boolean s = root2.synchroize(root);
+        Pair<Boolean, List<KVPair>> s = root2.synchroize(root);
+        List<KVPair> need_update = s.second();
+        for (KVPair p : need_update) {
+            System.out.println(p.key + " " + p.value + " " + p.version);
+        }
         root2.print();
 
         System.out.println(s);
+
 
 //
 //        // Test for KVPair update

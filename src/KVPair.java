@@ -21,8 +21,8 @@ public class KVPair {
     }
 
 
-    public int getHash(){
-        return this.version;
+    public String getHash(){
+        return Util.getMD5(key + value + version);
     }
 
     /*
