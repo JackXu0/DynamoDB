@@ -90,7 +90,50 @@ public class Worker implements Runnable {
         String[] new_hash_arr = new_vnr.getVirtualNodeHashArray();
         String[] local_hash_arr = this.virtual_nodes_ring.getVirtualNodeHashArray();
 
-        
+        for(VirtualNode vn : virtualNodes){
+            String hash = vn.hash;
+            int local_hash_index = -1;
+            int new_hash_index = -1;
+            // find the index in local virtual node hash array
+            for(int i=0; i<local_hash_arr.length; i++){
+                if(local_hash_arr[i].equals(hash)){
+                    local_hash_index = i;
+                    break;
+                }
+            }
+
+            // find the index on new virtual node hash array
+            for(int i=0; i<new_hash_arr.length; i++){
+                if(new_hash_arr[i].equals(hash)){
+                    new_hash_index = i;
+                    break;
+                }
+            }
+
+            // check the N-1 preceding virtual node hashes in the new virtual node hash array
+            boolean need_update = false;
+            for(int i=1; i<this.partition; i++){
+                int new_index = new_hash_index - i >= 0 ? new_hash_index - i : new_hash_arr.length - (i - new_hash_index);
+                int local_index = local_hash_index - i >= 0 ? local_hash_index - i : local_hash_arr.length - (i - local_hash_index);
+                if(!new_hash_arr[new_hash_index].equals(local_hash_arr[local_hash_index])){
+                    need_update = true;
+                }
+                if(need_update){
+                    // re
+                }
+            }
+
+            // A, C, D, E, F
+            // A, B, C, D, E, F
+
+            if(local_hash_index == -1){
+                System.out.println("Virtual Node Not Found!");
+            }
+
+
+                if()
+            }
+        }
     }
 
     public VirtualNodeRing getVirtualNodesRing() {
