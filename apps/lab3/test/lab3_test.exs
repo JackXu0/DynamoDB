@@ -14,15 +14,16 @@ defmodule Lab3Test do
       Dynamo.new_configuration(:a, 3, 2, 2)
 
     IO.puts(222222)
-    spawn(:a, fn -> Dynamo.test() end)
+    client = spawn(:a, fn -> Dynamo.test() end)
 
-    # handle = Process.monitor(client)
-    # # Timeout.
-    # receive do
-    #   {:DOWN, ^handle, _, _, _} -> true
-    # after
-    #   30_000 -> assert false
-    # end
+
+    handle = Process.monitor(client)
+    # Timeout.
+    receive do
+      {:DOWN, ^handle, _, _, _} -> true
+    after
+      30_000 -> assert false
+    end
   after
     Emulation.terminate()
   end

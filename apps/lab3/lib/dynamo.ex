@@ -81,11 +81,11 @@ defmodule Dynamo do
     IO.puts(333)
     
     
-    # vn2 = %Dynamo.VirtualNode.new(:a, :hash2, 0)
-    # vn3 = %Dynamo.VirtualNode.new(:a, :hash3, 0)
+    vn2 = Dynamo.VirtualNode.new(:a, :hash2, 0)
+    vn3 = Dynamo.VirtualNode.new(:a, :hash3, 0)
     
-    # virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn2)
-    # virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn3)
+    virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn2)
+    virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn3)
 
     IO.inspect(virtual_node_ring.ring)
 
