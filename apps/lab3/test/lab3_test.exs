@@ -8,11 +8,12 @@ defmodule Lab3Test do
 
   test "Nothing crashes during startup and heartbeats" do
     Emulation.init()
-    Emulation.append_fuzzers([Fuzzers.delay(2)])
+    #Emulation.append_fuzzers([Fuzzers.delay(2)])
 
     base_config =
       Dynamo.new_configuration(:a, 3, 2, 2)
 
+    IO.puts(222222)
     spawn(:a, fn -> Dynamo.test() end)
 
     # handle = Process.monitor(client)

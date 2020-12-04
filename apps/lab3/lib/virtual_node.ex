@@ -8,14 +8,15 @@ defmodule Dynamo.VirtualNode do
     partition: nil
   )
 
-  @spec new(%Dynamo{},
-          atom(),
-          non_neg_integer()) :: %VirtualNode{}
-  def new(worker, hash, partition) do
+  #@spec new(atom(),
+  #        atom(),
+  #        non_neg_integer()) :: %VirtualNode{}
+  def new(w, h, p) do
+    IO.puts(5555555)
     %VirtualNode{
-      worker: worker,
-      hash: hash,
-      partition: partition
+      worker: w,
+      hash: h,
+      partition: p
     }
   end
 end
