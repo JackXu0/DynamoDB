@@ -274,9 +274,7 @@ defmodule Dynamo.Message do
 end
 
 defmodule Dynamo.AddVirtualNodeRequest do
-  
-end
-  alias __MODULE__
+    alias __MODULE__
   @enforce_keys [:worker, :worker_name]
   defstruct(
     worker: nil,
@@ -461,12 +459,12 @@ defmodule Dynamo.GetResponseToClient do
   )
 
   @spec new(atom(), atom()) ::
-          %GetResponseFromWorkers{
+          %GetResponseToClient{
             key: atom(),
             value: atom()
           }
   def new(key, value) do
-    %GetResponseFromWorkers{key: key, value: value}
+    %GetResponseToClient{key: key, value: value}
   end
 end
 

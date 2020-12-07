@@ -239,12 +239,13 @@ defmodule Dynamo do
       
       {sender,
               %Dynamo.GetRequestToWorkers{
+                client: client,
                 key: key
               }} ->
                 # TODO: Handle an AppendEntryRequest received by a
                 # follower
                 IO.puts("Get Request to All Workers #{inspect(whoami())} -- key: #{key}")
-                send(sender,  %Dynamo.GetResponseFromWorker{
+                send(sender,  %Dynamo.GetResponseFromWorkers{
                                 client: client,
                                 key: key,
                                 value: Map.fetch(state.storage, key)
@@ -252,7 +253,7 @@ defmodule Dynamo do
                 worker(state)
 
       {sender,
-                %Dynamo.GetResponseFromWorker{
+                %Dynamo.GetResponseFromWorkers{
                   client: client,
                   key: key,
                   value: value
@@ -260,10 +261,10 @@ defmodule Dynamo do
                   # TODO: Handle an AppendEntryRequest received by a
                   # follower
                   IO.puts("Get Request to All Workers #{inspect(whoami())} -- key: #{key}")
-                  send(client,  %Dynamo.GetResponseToClient{
-                    key: key,
-                    value: value
-                  }
+                  # send(client,  %Dynamo.GetResponseToClient{
+                  #   key: key,
+                  #   value: value
+                  # }
                   worker(state)
 
       
