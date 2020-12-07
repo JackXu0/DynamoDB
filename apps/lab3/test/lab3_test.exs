@@ -8,50 +8,113 @@ defmodule Lab3Test do
 
   test "Nothing crashes during startup and heartbeats" do
     Emulation.init()
-    base_config =
-      Dynamo.new_configuration(:a, 3, 3, 2, 2)
-
-    a = spawn(:a, fn -> Dynamo.become_worker(base_config, "a") end)
-
-    send(:a, :getConfig)
+    
+    # p, n ,r, w
     config =
-    receive do
-      # {_, %Dynamo{}} -> %Dynamo{}
-      msg -> msg
-    after
-      5_000 -> assert false
-    end
+      Dynamo.new_configuration(:a, 3, 5, 1, 1)
 
-    IO.puts("1111 #{inspect(config)}")
+    nodes = %{1 => "a", 2 => "b", 3 => "c", 4 => "d", 5 => "e", 6 => "f", 7 => "g", 8 => "h", 9 => "i", 10 => "j"}
+    IO.inspect(nodes)
 
-    b = spawn(:b, fn -> Dynamo.become_worker(config, "b") end)
+    a = spawn(:a, fn -> Dynamo.become_worker(config, "a") end)
+    for {x, y} <- nodes do  
+      if x > 1 do
+        IO.puts(y)
+        atom = String.to_atom(y)
 
-    send(b, :getConfig)
+        send(String.to_atom(nodes[x-1]), :getConfig)
         config =
         receive do
           # {_, %Dynamo{}} -> %Dynamo{}
           msg -> msg
         after
-          30_000 -> assert false
+          5_000 -> assert false
         end
 
-    c = spawn(:c, fn -> Dynamo.become_worker(config, "c") end)
+        spawn(atom, fn -> Dynamo.become_worker(config, y) end)
+        
+        # :timer.sleep(1000)
+        
+        
+      end
+    end
 
-    send(:a, %Dynamo.AddWorkerRequest{worker: b, worker_name: "b"})
-    send(:a, %Dynamo.AddWorkerRequest{worker: c, worker_name: "c"})
-    send(:a, %Dynamo.AddVirtualNodeRequest{worker: b, worker_name: "b"})
-    send(:a, %Dynamo.AddVirtualNodeRequest{worker: c, worker_name: "c"})
+    # a = spawn(:a, fn -> Dynamo.become_worker(base_config, "a") end)
+
+    # :timer.sleep(1000)
+
+    # send(:a, :getConfig)
+    # config =
+    # receive do
+    #   # {_, %Dynamo{}} -> %Dynamo{}
+    #   msg -> msg
+    # after
+    #   5_000 -> assert false
+    # end
+
+    # #IO.puts("1111 #{inspect(config)}")
+    # :timer.sleep(1000)
+    # b = spawn(:b, fn -> Dynamo.become_worker(config, "b") end)
+    # :timer.sleep(1000)
+    # IO.puts("b added to config")
+    # send(:b, :getConfig)
+    #     config =
+    #     receive do
+    #       # {_, %Dynamo{}} -> %Dynamo{}
+    #       msg -> msg
+    #     after
+    #       30_000 -> assert false
+    #     end
+    # #IO.puts("1111 #{inspect(config)}")
+    # :timer.sleep(1000)
+    # c = spawn(:c, fn -> Dynamo.become_worker(config, "c") end)
+
+    # :timer.sleep(1000)
+    # IO.puts("c added to config")
+    # send(:c, :getConfig)
+    #     config =
+    #     receive do
+    #           {_, %Dynamo{}} -> %Dynamo{}
+    #           msg -> msg
+    #         after
+    #           30_000 -> assert false
+    #         end
+
+    # :timer.sleep(1000)
+    # d = spawn(:d, fn -> Dynamo.become_worker(config, "d") end)
+
+
+
+    :timer.sleep(2000)
+
+    Emulation.append_fuzzers([Fuzzers.delay(10)])
+
     send(:a, %Dynamo.PutRequestFromClient{key: "key1", value: 111})
+    
 
     handle = Process.monitor(a)
 
     receive do
       {:DOWN, ^handle, _, _, _} -> true
 
-      {_, msg} -> IO.puts("Put response #{msg}")
+      msg -> 
+        IO.puts("Put response before get #{inspect(msg)}")
+        send(:a, %Dynamo.GetRequestFromClient{key: "key1"})
+        IO.puts("after sending get")
     after
       30_000 -> assert false
     end
+
+    receive do
+      {:DOWN, ^handle, _, _, _} -> true
+
+      msg -> 
+        IO.puts("GET response #{inspect(msg)}")
+    after
+      30_000 -> assert false
+    end
+
+
   after
     Emulation.terminate()
   end

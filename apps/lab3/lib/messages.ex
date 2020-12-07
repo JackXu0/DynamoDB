@@ -357,17 +357,19 @@ defmodule Dynamo.PutRequestToReplicaNode do
   defstruct(
     client: nil,
     key: nil,
-    value: nil
+    value: nil,
+    version: nil
   )
 
-  @spec new(atom(), atom(), atom()) ::
+  @spec new(atom(), atom(), atom(), non_neg_integer()) ::
           %PutRequestToReplicaNode{
             client: atom(),
             key: atom(),
-            value: atom()
+            value: atom(),
+            version: non_neg_integer()
           }
-  def new(client, key, value) do
-    %PutRequestToReplicaNode{client: client, key: key, value: value}
+  def new(client, key, value, version) do
+    %PutRequestToReplicaNode{client: client, key: key, value: value, version: version}
   end
 end
 
@@ -431,21 +433,23 @@ end
 defmodule Dynamo.GetResponseFromWorkers do
 
   alias __MODULE__
-  @enforce_keys [:key, :value]
+  @enforce_keys [:client, :key, :value, :version]
   defstruct(
     client: nil,
     key: nil,
-    value: nil
+    value: nil,
+    version: nil
   )
 
-  @spec new(atom(), atom(), atom()) ::
+  @spec new(atom(), atom(), atom(), non_neg_integer()) ::
           %GetResponseFromWorkers{
             client: atom(),
             key: atom(),
-            value: atom()
+            value: atom(),
+            version: non_neg_integer()
           }
-  def new(client, key, value) do
-    %GetResponseFromWorkers{client: client, key: key, value: value}
+  def new(client, key, value, version) do
+    %GetResponseFromWorkers{client: client, key: key, value: value, version: version}
   end
 end
 
