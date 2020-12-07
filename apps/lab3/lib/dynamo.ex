@@ -52,14 +52,14 @@ defmodule Dynamo do
           non_neg_integer(),
           non_neg_integer(),
           non_neg_integer(),
-          non_neg_integer(),
+          non_neg_integer()
         ) :: %Dynamo{}
   def new_configuration(
         seed_worker,
         p,
         n,
         r,
-        w,
+        w
       ) do
     %Dynamo{
       #menbership_changing_history: [],
@@ -80,7 +80,7 @@ defmodule Dynamo do
     me = whoami()
     IO.inspect(state.view)
 
-    filtered = :maps.filter fn name, pid -> name == state.name end, state.view
+    filtered = :maps.filter fn name, pid -> name != state.name end, state.view
     IO.puts("filtered #{inspect(filtered)}")
     Enum.each Map.values(filtered), fn pid -> send(pid, message) end
   end
@@ -91,7 +91,8 @@ defmodule Dynamo do
   def become_worker(state, name) do
     # TODO: Do anything you need to when a process
     # transitions to a follower.
-    state.merkle_trees = [MapSet.new()],
+    # state.merkle_trees = [MapSet.new()]
+    %{state | merkle_trees:  [MapSet.new()]}
 
     IO.puts(" #{inspect(whoami())} became worker")
     # assign name
@@ -102,6 +103,7 @@ defmodule Dynamo do
 
     # # calculate hash for itself
     # state = %{state | hash:  Enum.random(1..1_000)}
+    
 
     # add to ring
     broadcast_to_others(state, %Dynamo.AddWorkerRequest{worker: whoami(), worker_name: state.name})
@@ -116,26 +118,26 @@ defmodule Dynamo do
       {sender,
         :getConfig
         } ->
-        send(sender, state)
-        worker(state)
+          send(sender, state)
+          worker(state)
 
-      {sender,
-        %Dynamo.AddVirtualNodeRequest{
-          worker: worker,
-          worker_name: worker_name
-        }} ->
-         # TODO: Handle an AppendEntryRequest received by a
-         # follower
-         IO.puts("Add Virtual Node -- #{inspect(whoami())} is going to add virtual node #{inspect(worker)} with worker_name #{worker_name}")
-         state = addVirtualNodes(state, worker_name)
+      # {sender,
+      #   %Dynamo.AddVirtualNodeRequest{
+      #     worker: worker,
+      #     worker_name: worker_name
+      #   }} ->
+      #    # TODO: Handle an AppendEntryRequest received by a
+      #    # follower
+      #    IO.puts("Add Virtual Node -- #{inspect(whoami())} is going to add virtual node #{inspect(worker)} with worker_name #{worker_name}")
+      #    state = addVirtualNodes(state, worker_name)
          
-         IO.puts("Add Virtual Node -- virtual node ring after insertion #{inspect(state.virtual_node_ring)}")
-         worker(state)
+      #    IO.puts("Add Virtual Node -- virtual node ring after insertion #{inspect(state.virtual_node_ring)}")
+      #    worker(state)
 
       {sender,
          %Dynamo.AddWorkerRequest{
            worker: worker,
-           # worker_name: worker_name
+           worker_name: worker_name
          }} ->
           # TODO: Handle an AppendEntryRequest received by a
           # follower
@@ -213,7 +215,7 @@ defmodule Dynamo do
                 IO.puts("Put Request to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
                 state = %{state | put_map:  Map.put(state.put_map, get_hash("put #{key}: #{value}"), Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) + 1)}
                 if Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) >= state.r do
-                  send(client, %Dynamo.PutResponseToClient{
+                  send(client, %Dynamo.Message{
                                   msg: 'ok'
                                 })
                 end
@@ -224,9 +226,11 @@ defmodule Dynamo do
                 key: key
               }} ->
                 IO.puts("Get Request to All Workers #{inspect(whoami())} -- key: #{key}")
+                state = %{state | get_map:  Map.put(state.get_map, get_hash("get #{key}"), 1)}
                 workers = getAllWorkers(state, key)
                 Enum.each Map.values(workers), fn pid ->
                   send(pid, %Dynamo.GetRequestToWorkers{
+                                client: sender,
                                 key: key
                               })
                   end
@@ -240,19 +244,26 @@ defmodule Dynamo do
                 # TODO: Handle an AppendEntryRequest received by a
                 # follower
                 IO.puts("Get Request to All Workers #{inspect(whoami())} -- key: #{key}")
-                send(sender,  %Dynamo.GetResponse{
+                send(sender,  %Dynamo.GetResponseFromWorker{
+                                client: client,
                                 key: key,
                                 value: Map.fetch(state.storage, key)
                               })
                 worker(state)
 
       {sender,
-                %Dynamo.GetResponse{
-                  key: key
+                %Dynamo.GetResponseFromWorker{
+                  client: client,
+                  key: key,
+                  value: value
                 }} ->
                   # TODO: Handle an AppendEntryRequest received by a
                   # follower
                   IO.puts("Get Request to All Workers #{inspect(whoami())} -- key: #{key}")
+                  send(client,  %Dynamo.GetResponseToClient{
+                    key: key,
+                    value: value
+                  }
                   worker(state)
 
       
@@ -309,14 +320,14 @@ defmodule Dynamo do
 
   @spec addWorker(%Dynamo{}, atom(), %Dynamo{}) :: %Dynamo{}
   def addWorker(state, name, worker) do
+    addVirtualNodeHelper(state, name, state.p)
     %{state | view:  Map.put(state.view, name, worker)}
-    addVirtualNodeHelper(state, state.p)
   end
 
-  def addVirtualNodeHelper(state, p) do
+  def addVirtualNodeHelper(state, worker_name, p) do
     if p > 0 do
       ExHashRing.Ring.add_node(state.virtual_node_ring, "#{worker_name}#{p}", 1)
-      addVirtualNodeHelper(state, p-1)
+      addVirtualNodeHelper(state, worker_name, p-1)
     end
   end
 
