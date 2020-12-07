@@ -12,13 +12,31 @@ defmodule Lab3Test do
       Dynamo.new_configuration(:a, 3, 3, 2, 2)
 
     a = spawn(:a, fn -> Dynamo.become_worker(base_config, "a") end)
-    b = spawn(:b, fn -> Dynamo.become_worker(base_config, "b") end)
-    c = spawn(:c, fn -> Dynamo.become_worker(base_config, "c") end)
 
-    send(:a, %Dynamo.AddWorkerRequest{worker: b, worker_name: "b"})
-    send(:a, %Dynamo.AddWorkerRequest{worker: c, worker_name: "c"})
-    send(:a, %Dynamo.AddVirtualNodeRequest{worker: b, worker_name: "b"})
-    send(:a, %Dynamo.AddVirtualNodeRequest{worker: c, worker_name: "c"})
+    send(a, :getConfig)
+    config =
+    receive do
+      {_, %Dynamo{}} -> %Dynamo{}
+    after
+      30_000 -> assert false
+    end
+
+    b = spawn(:b, fn -> Dynamo.become_worker(config, "b") end)
+
+    send(b, :getConfig)
+        config =
+        receive do
+          {_, %Dynamo{}} -> %Dynamo{}
+        after
+          30_000 -> assert false
+        end
+
+    c = spawn(:c, fn -> Dynamo.become_worker(config, "c") end)
+
+    #send(:a, %Dynamo.AddWorkerRequest{worker: b})
+    #send(:a, %Dynamo.AddWorkerRequest{worker: c})
+    #send(:a, %Dynamo.AddVirtualNodeRequest{worker: b, worker_name: "b"})
+    #send(:a, %Dynamo.AddVirtualNodeRequest{worker: c, worker_name: "c"})
     send(:a, %Dynamo.PutRequestFromClient{key: "key1", value: 111})
 
     handle = Process.monitor(a)
