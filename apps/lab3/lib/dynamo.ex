@@ -220,16 +220,15 @@ defmodule Dynamo do
                 hash = get_hash("put #{key}: #{value}")
                 {_, value} = Map.fetch(state.put_map, hash)
                 state = %{state | put_map:  Map.put(state.put_map, hash, value+1)}
-                case Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) do
-                  state.w - 1 ->
-                    IO.puts("ACK")
-                    state = %{state | storage:  Map.put(state.storage, key, value)}
-                    send(client, %Dynamo.Message{
-                                        msg: 'ok'
-                                        })
-                    IO.puts("#{inspect(client)}")
+                if value + 1 == state.w - 1 do
+                  IO.puts("ACK")
+                  state = %{state | storage:  Map.put(state.storage, key, value)}
+                  send(client, :ok)
+                end
 
-                  state.n-1 ->
+                if Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) == state.n do
+                  state = %{state | put_map:  Map.delete(state.put_map, hash)}
+                end
 
                 worker(state)
 
