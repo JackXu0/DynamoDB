@@ -50,27 +50,27 @@ defmodule Dynamo do
           non_neg_integer(),
           non_neg_integer(),
           non_neg_integer(),
-          non_neg_integer()
+          non_neg_integer(),
         ) :: %Dynamo{}
   def new_configuration(
         seed_worker,
         p,
         n,
         r,
-        w
+        w,
       ) do
     %Dynamo{
-      menbership_changing_history: [],
+      #menbership_changing_history: [],
       # TODO: implement a virtual node ring module
       virtual_node_ring: elem(ExHashRing.Ring.start_link(), 1),
-      name: 'Nil',
       p: p,
       n: n,
       r: r,
       w: w,
+      name: nil,
       view: %{},
-      merkle_trees: [MapSet.new()],
-      worker_map: %{}
+      merkle_trees: nil,
+      #worker_map: %{}
     }
   end
 
@@ -93,13 +93,14 @@ defmodule Dynamo do
   def become_worker(state, name) do
     # TODO: Do anything you need to when a process
     # transitions to a follower.
+    state.merkle_trees = [MapSet.new()],
 
     IO.puts(" #{inspect(whoami())} became worker")
     # assign name
     state = %{state | name:  name}
 
     # add self to view
-    state = addWorker(state, whoami(), state.name)
+    state = addWorker(state, name, whoami())
 
     # # calculate hash for itself
     # state = %{state | hash:  Enum.random(1..1_000)}
@@ -114,6 +115,11 @@ defmodule Dynamo do
   @spec worker(%Dynamo{}) :: no_return()
   def worker(state) do
     receive do
+      {sender,
+        :getConfig
+        } ->
+        send(sender, state)
+        worker(state)
 
       {sender,
         %Dynamo.AddVirtualNodeRequest{
@@ -131,7 +137,7 @@ defmodule Dynamo do
       {sender,
          %Dynamo.AddWorkerRequest{
            worker: worker,
-           worker_name: worker_name
+           # worker_name: worker_name
          }} ->
           # TODO: Handle an AppendEntryRequest received by a
           # follower
@@ -150,12 +156,12 @@ defmodule Dynamo do
            # follower
            IO.puts("Put Request From Client-- #{inspect(whoami())} received put request key: #{key} value: #{value}")
            coordinate_worker = getCoordinatorWorker(state, key)
+
            send(coordinate_worker, %Dynamo.PutRequestToCoordinateNode{
                                                 key: key,
                                                 value: value
                                               })
-           
-           end
+
            worker(state)
 
       {sender,
@@ -174,6 +180,7 @@ defmodule Dynamo do
                             key: key,
                             value: value
                           })
+            end
             state = %{state | storage:  Map.put(state.storage, key, value)}
             worker(state)
 
@@ -225,17 +232,25 @@ defmodule Dynamo do
   #   %{state | virtual_node_ring:  Enum.concat(state.virtual_node_ring, [{hash, worker}])}
   # end
 
-  @spec addVirtualNodes(%Dynamo{}, atom()) :: %Dynamo{}
-  def addVirtualNodes(state, worker_name) do
+  #@spec addVirtualNodes(%Dynamo{}, atom()) :: %Dynamo{}
+  #def addVirtualNodes(state, worker_name) do
     # %{state | ring:  Map.put(state.ring, 1, 1)}
     # %{state | virtual_node_ring:  elem(ExHashRing.Ring.add_node(state.virtual_node_ring, worker_name, 10), 1)}
-    ExHashRing.Ring.add_node(state.virtual_node_ring, worker_name, state.p)
-    state
+  #  ExHashRing.Ring.add_node(state.virtual_node_ring, worker_name, state.p)
+  #  state
+  #end
+
+  @spec addWorker(%Dynamo{}, atom(), %Dynamo{}) :: %Dynamo{}
+  def addWorker(state, name, worker) do
+    %{state | view:  Map.put(state.view, name, worker)}
+    addVirtualNodeHelper(state, state.p)
   end
 
-  @spec addWorker(%Dynamo{}, %Dynamo{}, atom()) :: %Dynamo{}
-  def addWorker(state, worker_name, worker) do
-    %{state | view:  Map.put(state.view, worker_name, worker)}
+  def addVirtualNodeHelper(state, p) do
+    if p > 0 do
+      ExHashRing.Ring.add_node(state.virtual_node_ring, "#{worker_name}#{p}", 1)
+      addVirtualNodeHelper(state, p-1)
+    end
   end
 
   @spec getCoordinatorWorker(%Dynamo{}, atom()) :: %Dynamo{}
@@ -243,17 +258,22 @@ defmodule Dynamo do
     IO.puts("current ring #{inspect(state.virtual_node_ring)}")
     IO.puts("key is #{key}")
     {_, name} = ExHashRing.Ring.find_node(state.virtual_node_ring, key)
-    IO.puts("name is #{inspect(name)}")
-    {_, worker} = Map.fetch(state.view, name)
+    IO.puts("VN name is #{inspect(name)}")
+    {_, worker} = Map.fetch(state.view, String.slice(name, 0..-1))
     IO.puts("worker is #{inspect(worker)}")
     worker
+  end
 
+  @spec getConfig(%Dynamo{}) :: %Dynamo{}
+  def getConfig(state) do
+    state
   end
 
   @spec getReplicaWorker(%Dynamo{}, atom()) :: {%Dynamo{}}
   def getReplicaWorker(state, key) do
     {_, [head | tail]} = ExHashRing.Ring.find_nodes(state.virtual_node_ring, key, state.n)
-    res = :maps.filter fn worker_name, worker -> Enum.member?(tail, worker_name) end, state.view
+    res = :maps.filter fn vn_name, vn -> Enum.member?(tail, String.slice(vn_name, 0..-1)) end, state.view
+    Map.values(res)
   end
 
 
