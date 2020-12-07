@@ -16,7 +16,7 @@ defmodule Lab3Test do
     send(:a, :getConfig)
     config =
     receive do
-      {_, %Dynamo{}} -> %Dynamo{}
+      # {_, %Dynamo{}} -> %Dynamo{}
       msg -> msg
     after
       5_000 -> assert false
@@ -29,7 +29,7 @@ defmodule Lab3Test do
     send(b, :getConfig)
         config =
         receive do
-          {_, %Dynamo{}} -> %Dynamo{}
+          # {_, %Dynamo{}} -> %Dynamo{}
           msg -> msg
         after
           30_000 -> assert false
