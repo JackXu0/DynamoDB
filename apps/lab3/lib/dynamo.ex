@@ -161,7 +161,6 @@ defmodule Dynamo do
                                                 key: key,
                                                 value: value
                                               })
-
            worker(state)
 
       {sender,
@@ -169,8 +168,7 @@ defmodule Dynamo do
              key: key,
              value: value
            }} ->
-            # TODO: Handle an AppendEntryRequest received by a
-            # follower
+            # TODO: Handle an AppendEntryRequest received by a follower
             IO.puts("Put Request to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
             replica_workers = getReplicaWorker(state, key)
             IO.puts("Get replica workers #{inspect(replica_workers)}")
@@ -298,28 +296,28 @@ defmodule Dynamo do
   #   %{state | queue: :queue.in(item, state.queue)}
   # end
 
-  def test() do
-    virtual_node_ring = %Dynamo.VirtualNodeRing{}
-    IO.puts(111)
-    virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn1)
-    IO.puts(333)
+  # def test() do
+  #   virtual_node_ring = %Dynamo.VirtualNodeRing{}
+  #   IO.puts(111)
+  #   virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn1)
+  #   IO.puts(333)
     
     
-    vn2 = Dynamo.VirtualNode.new(:a, :hash2, 0)
-    vn3 = Dynamo.VirtualNode.new(:a, :hash3, 0)
+  #   vn2 = Dynamo.VirtualNode.new(:a, :hash2, 0)
+  #   vn3 = Dynamo.VirtualNode.new(:a, :hash3, 0)
     
-    virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn2)
-    virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn3)
+  #   virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn2)
+  #   virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn3)
 
-    node1 = Dynamo.VirtualNodeRing.getCoordinatorNode(virtual_node_ring, "hash11")
-    IO.puts(333)
-    IO.puts("hash10" < "hash11")
+  #   node1 = Dynamo.VirtualNodeRing.getCoordinatorNode(virtual_node_ring, "hash11")
+  #   IO.puts(333)
+  #   IO.puts("hash10" < "hash11")
     
    
 
-    IO.inspect(virtual_node_ring.ring)
-    IO.inspect(node1)
+  #   IO.inspect(virtual_node_ring.ring)
+  #   IO.inspect(node1)
 
-  end
+  # end
 
 end
