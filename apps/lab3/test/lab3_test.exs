@@ -40,6 +40,23 @@ defmodule Lab3Test do
     #IO.puts("1111 #{inspect(config)}")
     :timer.sleep(1000)
     c = spawn(:c, fn -> Dynamo.become_worker(config, "c") end)
+
+    :timer.sleep(1000)
+    IO.puts("c added to config")
+    send(:c, :getConfig)
+        config =
+        receive do
+              {_, %Dynamo{}} -> %Dynamo{}
+              msg -> msg
+            after
+              30_000 -> assert false
+            end
+
+    :timer.sleep(1000)
+    d = spawn(:d, fn -> Dynamo.become_worker(config, "d") end)
+
+
+
     :timer.sleep(2000)
     #send(:a, %Dynamo.AddWorkerRequest{worker: b, worker_name: "b"})
     #send(:a, %Dynamo.AddWorkerRequest{worker: c, worker_name: "c"})

@@ -176,8 +176,8 @@ defmodule Dynamo do
            }} ->
             # TODO: Handle an AppendEntryRequest received by a follower
             IO.puts("Put Request to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
-            state = %{state | storage:  Map.put(state.storage, key, value)}
-            state = %{state | put_map:  Map.put(state.put_map, get_hash("put #{key}: #{value}"), 1)}
+            ###########state = %{state | storage:  Map.put(state.storage, key, value)}
+            state = %{state | put_map:  Map.put(state.put_map, get_hash("put #{key}: #{value}"), 0)}
             replica_workers = getReplicaWorker(state, key)
             IO.puts("Get replica workers #{inspect(replica_workers)}")
 
@@ -206,6 +206,7 @@ defmodule Dynamo do
                           key: key,
                           value: value
                         })
+              IO.puts("#{whoami()} done sending to coordinator")
               worker(state)
 
       {sender,
@@ -216,9 +217,13 @@ defmodule Dynamo do
               }} ->
                 # TODO: Handle an AppendEntryRequest received by a
                 # follower
-                IO.puts("Put Response to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
-                state = %{state | put_map:  Map.put(state.put_map, get_hash("put #{key}: #{value}"), Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) + 1)}
-                if Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) >= state.r do
+                IO.puts("Put Response to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value} from #{sender}")
+                hash = get_hash("put #{key}: #{value}")
+                {_, value} = Map.fetch(state.put_map, hash)
+                state = %{state | put_map:  Map.put(state.put_map, hash, value+1)}
+                if Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) >= state.r - 1 do
+                  IO.puts("ACK")
+                  state = %{state | storage:  Map.put(state.storage, key, value)}
                   send(client, %Dynamo.Message{
                                   msg: 'ok'
                                 })
