@@ -39,7 +39,8 @@ defmodule Dynamo do
     worker_map: nil,
     put_map: %{},
     get_map: %{},
-    key_versions: %{}
+    key_versions: %{},
+    delay: nil
 
   )
 
@@ -53,6 +54,7 @@ defmodule Dynamo do
           non_neg_integer(),
           non_neg_integer(),
           non_neg_integer(),
+          non_neg_integer(),
           non_neg_integer()
         ) :: %Dynamo{}
   def new_configuration(
@@ -60,7 +62,8 @@ defmodule Dynamo do
         p,
         n,
         r,
-        w
+        w,
+        delay
       ) do
     %Dynamo{
       #menbership_changing_history: [],
@@ -73,6 +76,7 @@ defmodule Dynamo do
       name: nil,
       view: %{},
       merkle_trees: nil,
+      delay: delay
     }
   end
 
@@ -161,6 +165,7 @@ defmodule Dynamo do
            IO.puts("Put Request From Client-- #{inspect(whoami())} received put request key: #{key} value: #{value}")
            coordinate_worker = getCoordinatorWorker(state, key)
            IO.puts("#{inspect(whoami())} will send the request to the coordinator #{inspect(coordinate_worker)}")
+           :timer.sleep(state.delay)
            send(coordinate_worker, %Dynamo.PutRequestToCoordinateNode{
                                                 client: sender,
                                                 key: key,
@@ -186,7 +191,9 @@ defmodule Dynamo do
             replica_workers = getReplicaWorker(state, key)
             IO.puts("Get replica workers #{inspect(replica_workers)}")
 
+            :timer.sleep(state.delay)
             Enum.each replica_workers, fn pid ->
+              
               send(pid, %Dynamo.PutRequestToReplicaNode{
                             client: client,
                             key: key,
@@ -197,6 +204,7 @@ defmodule Dynamo do
 
             if state.w == 1 do
               IO.puts("ACK")
+              :timer.sleep(state.delay)
               send(client, :ok)
             end
             # state = %{state | storage:  Map.put(state.storage, key, value)}
@@ -215,6 +223,7 @@ defmodule Dynamo do
               if state.key_versions[key] == nil or version >= state.key_versions[key] do
                 state = %{state | storage:  Map.put(state.storage, key, value)}
                 state = %{state | key_versions:  Map.put(state.key_versions, key, version)}
+                :timer.sleep(state.delay)
                 send(sender,  %Dynamo.PutResponseToCoordinator{
                             client: client,
                             key: key,

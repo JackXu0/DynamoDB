@@ -11,9 +11,11 @@ defmodule Lab3Test do
     
     # p, n ,r, w
     config =
-      Dynamo.new_configuration(:a, 3, 5, 1, 1)
+      Dynamo.new_configuration(:a, 3, 8, 1, 1, 100)
 
-    nodes = %{1 => "a", 2 => "b", 3 => "c", 4 => "d", 5 => "e", 6 => "f", 7 => "g", 8 => "h", 9 => "i", 10 => "j"}
+    nodes = %{1 => "a", 2 => "b", 3 => "c", 4 => "d", 5 => "e", 6 => "f", 7 => "g", 8 => "h", 9 => "i", 10 => "j",
+    11 => "1a", 12 => "1b", 13 => "1c", 14 => "1d", 15 => "1e", 16 => "1f", 17 => "1g", 18 => "1h", 19 => "1i", 20 => "1j"
+  }
     IO.inspect(nodes)
 
     a = spawn(:a, fn -> Dynamo.become_worker(config, "a") end)
@@ -87,7 +89,7 @@ defmodule Lab3Test do
 
     :timer.sleep(2000)
 
-    Emulation.append_fuzzers([Fuzzers.delay(10)])
+    # Emulation.append_fuzzers([Fuzzers.delay(30)])
 
     send(:a, %Dynamo.PutRequestFromClient{key: "key1", value: 111})
     
@@ -99,7 +101,7 @@ defmodule Lab3Test do
 
       msg -> 
         IO.puts("Put response before get #{inspect(msg)}")
-        send(:a, %Dynamo.GetRequestFromClient{key: "key1"})
+        send(:f, %Dynamo.GetRequestFromClient{key: "key1"})
         IO.puts("after sending get")
     after
       30_000 -> assert false
