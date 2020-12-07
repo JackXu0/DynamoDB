@@ -8,21 +8,26 @@ defmodule Lab3Test do
 
   test "Nothing crashes during startup and heartbeats" do
     Emulation.init()
-    #Emulation.append_fuzzers([Fuzzers.delay(2)])
-
     base_config =
-      Dynamo.new_configuration(:a, 3, 2, 2)
+      Dynamo.new_configuration(:a, 3, 3, 2, 2)
 
-    IO.puts(222222)
-    spawn(:a, fn -> Dynamo.test() end)
+    a = spawn(:a, fn -> Dynamo.become_worker(base_config, "a") end)
+    b = spawn(:b, fn -> Dynamo.become_worker(base_config, "b") end)
+    c = spawn(:c, fn -> Dynamo.become_worker(base_config, "c") end)
 
-    # handle = Process.monitor(client)
-    # # Timeout.
-    # receive do
-    #   {:DOWN, ^handle, _, _, _} -> true
-    # after
-    #   30_000 -> assert false
-    # end
+    send(:a, %Dynamo.AddWorkerRequest{worker: b, worker_name: "b"})
+    send(:a, %Dynamo.AddWorkerRequest{worker: c, worker_name: "c"})
+    send(:a, %Dynamo.AddVirtualNodeRequest{worker: b, worker_name: "b"})
+    send(:a, %Dynamo.AddVirtualNodeRequest{worker: c, worker_name: "c"})
+    send(:a, %Dynamo.PutRequestFromClient{key: "key1", value: 111})
+
+    handle = Process.monitor(a)
+
+    receive do
+      {:DOWN, ^handle, _, _, _} -> true
+    after
+      30_000 -> assert false
+    end
   after
     Emulation.terminate()
   end

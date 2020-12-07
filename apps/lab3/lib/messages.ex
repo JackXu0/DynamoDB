@@ -233,3 +233,147 @@ defmodule Raft.RequestVoteResponse do
     %RequestVoteResponse{term: term, granted: granted}
   end
 end
+
+defmodule Dynamo.HelloWorldRequest do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:msg]
+  defstruct(
+    msg: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(atom()) ::
+          %HelloWorldRequest{
+            msg: atom()
+          }
+  def new(msg) do
+    %HelloWorldRequest{msg: msg}
+  end
+end
+
+defmodule Dynamo.AddVirtualNodeRequest do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:worker, :worker_name]
+  defstruct(
+    worker: nil,
+    worker_name: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(%Dynamo{}, atom()) ::
+          %AddVirtualNodeRequest{
+            worker: %Dynamo{},
+            worker_name: atom()
+          }
+  def new(worker, worker_name) do
+    %AddVirtualNodeRequest{ worker: worker, worker_name: worker_name}
+  end
+end
+
+defmodule Dynamo.AddWorkerRequest do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:worker, :worker_name]
+  defstruct(
+    worker: nil,
+    worker_name: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(%Dynamo{}, atom()) ::
+          %AddWorkerRequest{
+            worker: %Dynamo{},
+            worker_name: atom()
+          }
+  def new(worker, worker_name) do
+    %AddWorkerRequest{worker: worker, worker_name: worker_name}
+  end
+end
+
+defmodule Dynamo.PutRequestFromClient do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:key, :value]
+  defstruct(
+    key: nil,
+    value: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(atom(), atom()) ::
+          %PutRequestFromClient{
+            key: atom(),
+            value: atom()
+          }
+  def new(key, value) do
+    %PutRequestFromClient{key: key, value: value}
+  end
+end
+
+defmodule Dynamo.PutRequestToCoordinateNode do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:key, :value]
+  defstruct(
+    key: nil,
+    value: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(atom(), atom()) ::
+          %PutRequestToCoordinateNode{
+            key: atom(),
+            value: atom()
+          }
+  def new(key, value) do
+    %PutRequestToCoordinateNode{key: key, value: value}
+  end
+end
+
+defmodule Dynamo.PutRequestToReplicaNode do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:key, :value]
+  defstruct(
+    key: nil,
+    value: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(atom(), atom()) ::
+          %PutRequestToReplicaNode{
+            key: atom(),
+            value: atom()
+          }
+  def new(key, value) do
+    %PutRequestToReplicaNode{key: key, value: value}
+  end
+end
+
+
