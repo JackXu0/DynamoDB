@@ -36,7 +36,9 @@ defmodule Dynamo do
     is_running: nil,
     # the hash of this worker
     hash: nil,
-    worker_map: nil
+    worker_map: nil,
+    put_map: nil,
+    get_map: nil
 
   )
 
@@ -70,7 +72,9 @@ defmodule Dynamo do
       w: w,
       view: %{},
       merkle_trees: [MapSet.new()],
-      worker_map: %{}
+      worker_map: %{},
+      put_map: %{},
+      get_map: %{}
     }
   end
 
@@ -84,10 +88,7 @@ defmodule Dynamo do
     Enum.each Map.values(filtered), fn pid -> send(pid, message) end
   end
 
-  # @spec get_hash(atom()) :: atom()
-  # defp broadcast_to_others(key) do
-  #   :crypto.hash(:md5 , key) |> Base.encode16()
-  # end
+
 
   @spec become_worker(%Dynamo{}, atom()) :: no_return()
   def become_worker(state, name) do
@@ -151,6 +152,7 @@ defmodule Dynamo do
            IO.puts("Put Request From Client-- #{inspect(whoami())} received put request key: #{key} value: #{value}")
            coordinate_worker = getCoordinatorWorker(state, key)
            send(coordinate_worker, %Dynamo.PutRequestToCoordinateNode{
+                                                client: sender,
                                                 key: key,
                                                 value: value
                                               })
@@ -159,25 +161,30 @@ defmodule Dynamo do
 
       {sender,
            %Dynamo.PutRequestToCoordinateNode{
+             client: client,
              key: key,
              value: value
            }} ->
             # TODO: Handle an AppendEntryRequest received by a follower
             IO.puts("Put Request to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
+            state = %{state | storage:  Map.put(state.storage, key, value)}
+            state = %{state | put_map:  Map.put(state.put_map, get_hash("put #{key}: #{value}"), 1)}
             replica_workers = getReplicaWorker(state, key)
             IO.puts("Get replica workers #{inspect(replica_workers)}")
 
             Enum.each Map.values(replica_workers), fn pid ->
               send(pid, %Dynamo.PutRequestToReplicaNode{
+                            client: client,
                             key: key,
                             value: value
                           })
               end
-            state = %{state | storage:  Map.put(state.storage, key, value)}
+            
             worker(state)
 
       {sender,
             %Dynamo.PutRequestToReplicaNode{
+              client: client,
               key: key,
               value: value
             }} ->
@@ -185,7 +192,67 @@ defmodule Dynamo do
               # follower
               IO.puts("Put Request to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
               state = %{state | storage:  Map.put(state.storage, key, value)}
+              send(sender,  %Dynamo.PutResponseToCoordinator{
+                          client: client,
+                          key: key,
+                          value: value
+                        })
               worker(state)
+
+      {sender,
+              %Dynamo.PutResponseToCoordinator{
+                client: client,
+                key: key,
+                value: value
+              }} ->
+                # TODO: Handle an AppendEntryRequest received by a
+                # follower
+                IO.puts("Put Request to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
+                state = %{state | put_map:  Map.put(state.put_map, get_hash("put #{key}: #{value}"), Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) + 1)}
+                if Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) >= state.r do
+                  send(client, %Dynamo.PutResponseToClient{
+                                  msg: 'ok'
+                                })
+                end
+                worker(state)
+
+      {sender,
+              %Dynamo.GetRequestFromClient{
+                key: key
+              }} ->
+                IO.puts("Get Request to All Workers #{inspect(whoami())} -- key: #{key}")
+                workers = getAllWorkers(state, key)
+                Enum.each Map.values(workers), fn pid ->
+                  send(pid, %Dynamo.GetRequestToWorkers{
+                                key: key
+                              })
+                  end
+                worker(state)
+
+      
+      {sender,
+              %Dynamo.GetRequestToWorkers{
+                key: key
+              }} ->
+                # TODO: Handle an AppendEntryRequest received by a
+                # follower
+                IO.puts("Get Request to All Workers #{inspect(whoami())} -- key: #{key}")
+                send(sender,  %Dynamo.GetResponse{
+                                key: key,
+                                value: Map.fetch(state.storage, key)
+                              })
+                worker(state)
+
+      {sender,
+                %Dynamo.GetResponse{
+                  key: key
+                }} ->
+                  # TODO: Handle an AppendEntryRequest received by a
+                  # follower
+                  IO.puts("Get Request to All Workers #{inspect(whoami())} -- key: #{key}")
+                  worker(state)
+
+      
     end
   end
 
@@ -224,6 +291,11 @@ defmodule Dynamo do
   #   %{state | virtual_node_ring:  Enum.concat(state.virtual_node_ring, [{hash, worker}])}
   # end
 
+  @spec get_hash(atom()) :: atom()
+  defp get_hash(key) do
+    :crypto.hash(:md5 , key) |> Base.encode16()
+  end
+
   @spec addVirtualNodes(%Dynamo{}, atom()) :: %Dynamo{}
   def addVirtualNodes(state, worker_name) do
     # %{state | ring:  Map.put(state.ring, 1, 1)}
@@ -255,6 +327,12 @@ defmodule Dynamo do
     res = :maps.filter fn worker_name, worker -> Enum.member?(tail, worker_name) end, state.view
   end
 
+  @spec getAllWorkers(%Dynamo{}, atom()) :: {%Dynamo{}}
+  def getAllWorkers(state, key) do
+    {_, list} = ExHashRing.Ring.find_nodes(state.virtual_node_ring, key, state.n)
+    res = :maps.filter fn worker_name, worker -> Enum.member?(list, worker_name) end, state.view
+  end
+
 
   # def make_seed(state) do
     
@@ -266,39 +344,5 @@ defmodule Dynamo do
     coordinator_node = Dynamo.VirtualNodeRing.getCoordinatorNode(state.virtual_node_ring)
     coordinator_node.put()
   end
-
-
-
-  # # Enqueue an item, this **modifies** the state
-  # # machine, and should only be called when a log
-  # # entry is committed.
-  # @spec enqueue(%Raft{}, any()) :: %Raft{}
-  # defp enqueue(state, item) do
-  #   %{state | queue: :queue.in(item, state.queue)}
-  # end
-
-  # def test() do
-  #   virtual_node_ring = %Dynamo.VirtualNodeRing{}
-  #   IO.puts(111)
-  #   virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn1)
-  #   IO.puts(333)
-    
-    
-  #   vn2 = Dynamo.VirtualNode.new(:a, :hash2, 0)
-  #   vn3 = Dynamo.VirtualNode.new(:a, :hash3, 0)
-    
-  #   virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn2)
-  #   virtual_node_ring = Dynamo.VirtualNodeRing.put(virtual_node_ring, vn3)
-
-  #   node1 = Dynamo.VirtualNodeRing.getCoordinatorNode(virtual_node_ring, "hash11")
-  #   IO.puts(333)
-  #   IO.puts("hash10" < "hash11")
-    
-   
-
-  #   IO.inspect(virtual_node_ring.ring)
-  #   IO.inspect(node1)
-
-  # end
 
 end

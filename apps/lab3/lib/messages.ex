@@ -333,8 +333,9 @@ defmodule Dynamo.PutRequestToCoordinateNode do
   Response for RequestVote requests.
   """
   alias __MODULE__
-  @enforce_keys [:key, :value]
+  @enforce_keys [:client, :key, :value]
   defstruct(
+    client: nil,
     key: nil,
     value: nil
   )
@@ -342,17 +343,138 @@ defmodule Dynamo.PutRequestToCoordinateNode do
   @doc """
   Create a new RequestVoteResponse.
   """
-  @spec new(atom(), atom()) ::
+  @spec new(atom(), atom(), atom()) ::
           %PutRequestToCoordinateNode{
+            client: atom(),
             key: atom(),
             value: atom()
           }
-  def new(key, value) do
-    %PutRequestToCoordinateNode{key: key, value: value}
+  def new(client, key, value) do
+    %PutRequestToCoordinateNode{client: client, key: key, value: value}
   end
 end
 
 defmodule Dynamo.PutRequestToReplicaNode do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:client, :key, :value]
+  defstruct(
+    client: nil,
+    key: nil,
+    value: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(atom(), atom(), atom()) ::
+          %PutRequestToReplicaNode{
+            client: atom(),
+            key: atom(),
+            value: atom()
+          }
+  def new(client, key, value) do
+    %PutRequestToReplicaNode{client: client, key: key, value: value}
+  end
+end
+
+defmodule Dynamo.PutResponseToCoordinator do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:client, :key, :value]
+  defstruct(
+    client: nil,
+    key: nil,
+    value: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(atom(), atom(), atom()) ::
+          %PutResponseToCoordinator{
+            client: atom(),
+            key: atom(),
+            value: atom()
+          }
+  def new(client, key, value) do
+    %PutResponseToCoordinator{client: client, key: key, value: value}
+  end
+end
+
+defmodule Dynamo.PutResponseToClient do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:msg]
+  defstruct(
+    msg: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(atom()) ::
+          %PutResponseToClient{
+            msg: atom()
+          }
+  def new(msg) do
+    %PutResponseToClient{msg: msg}
+  end
+end
+
+defmodule Dynamo.GetRequestFromClient do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:key]
+  defstruct(
+    key: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(atom()) ::
+          %GetRequestFromClient{
+            key: atom()
+          }
+  def new(key) do
+    %GetRequestFromClient{key: key}
+  end
+end
+
+defmodule Dynamo.GetRequestToWorkers do
+  @moduledoc """
+  Response for RequestVote requests.
+  """
+  alias __MODULE__
+  @enforce_keys [:key]
+  defstruct(
+    client: nil,
+    key: nil
+  )
+
+  @doc """
+  Create a new RequestVoteResponse.
+  """
+  @spec new(atom(), atom()) ::
+          %GetRequestToWorkers{
+            client: atom(),
+            key: atom(),
+          }
+  def new(client, key) do
+    %GetRequestToWorkers{client: client, key: key}
+  end
+end
+
+defmodule Dynamo.GetResponse do
   @moduledoc """
   Response for RequestVote requests.
   """
@@ -367,12 +489,12 @@ defmodule Dynamo.PutRequestToReplicaNode do
   Create a new RequestVoteResponse.
   """
   @spec new(atom(), atom()) ::
-          %PutRequestToReplicaNode{
+          %GetResponse{
             key: atom(),
             value: atom()
           }
   def new(key, value) do
-    %PutRequestToReplicaNode{key: key, value: value}
+    %GetResponse{key: key, value: value}
   end
 end
 

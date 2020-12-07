@@ -25,6 +25,8 @@ defmodule Lab3Test do
 
     receive do
       {:DOWN, ^handle, _, _, _} -> true
+
+      {_, msg} -> IO.puts("Put response #{msg}")
     after
       30_000 -> assert false
     end
