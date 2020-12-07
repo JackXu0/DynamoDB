@@ -156,8 +156,7 @@ defmodule Dynamo do
             key: key,
             value: value
           }} ->
-           # TODO: Handle an AppendEntryRequest received by a
-           # follower
+           IO.puts("#{inspect(sender)}")
            IO.puts("Put Request From Client-- #{inspect(whoami())} received put request key: #{key} value: #{value}")
            coordinate_worker = getCoordinatorWorker(state, key)
            IO.puts("#{inspect(whoami())} will send the request to the coordinator #{inspect(coordinate_worker)}")
@@ -221,13 +220,17 @@ defmodule Dynamo do
                 hash = get_hash("put #{key}: #{value}")
                 {_, value} = Map.fetch(state.put_map, hash)
                 state = %{state | put_map:  Map.put(state.put_map, hash, value+1)}
-                if Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) >= state.r - 1 do
-                  IO.puts("ACK")
-                  state = %{state | storage:  Map.put(state.storage, key, value)}
-                  send(client, %Dynamo.Message{
-                                  msg: 'ok'
-                                })
-                end
+                case Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) do
+                  state.w - 1 ->
+                    IO.puts("ACK")
+                    state = %{state | storage:  Map.put(state.storage, key, value)}
+                    send(client, %Dynamo.Message{
+                                        msg: 'ok'
+                                        })
+                    IO.puts("#{inspect(client)}")
+
+                  state.n-1 ->
+
                 worker(state)
 
       {sender,

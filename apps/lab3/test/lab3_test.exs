@@ -58,10 +58,7 @@ defmodule Lab3Test do
 
 
     :timer.sleep(2000)
-    #send(:a, %Dynamo.AddWorkerRequest{worker: b, worker_name: "b"})
-    #send(:a, %Dynamo.AddWorkerRequest{worker: c, worker_name: "c"})
-    #send(:a, %Dynamo.AddVirtualNodeRequest{worker: b, worker_name: "b"})
-    #send(:a, %Dynamo.AddVirtualNodeRequest{worker: c, worker_name: "c"})
+
     send(:a, %Dynamo.PutRequestFromClient{key: "key1", value: 111})
 
     handle = Process.monitor(a)
