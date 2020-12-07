@@ -31,14 +31,14 @@ defmodule Dynamo do
     # store all merkle trees
     merkle_trees: nil,
     # store all KVPairs
-    storage: nil,
+    storage: %{},
     # the status of this worker
-    is_running: nil,
+    is_running: :true,
     # the hash of this worker
     hash: nil,
     worker_map: nil,
-    put_map: nil,
-    get_map: nil
+    put_map: %{},
+    get_map: %{}
 
   )
 
@@ -82,6 +82,7 @@ defmodule Dynamo do
 
     filtered = :maps.filter fn name, pid -> name != state.name end, state.view
     IO.puts("filtered #{inspect(filtered)}")
+    IO.puts("new worker to be added is #{inspect(message.worker)}")
     Enum.each Map.values(filtered), fn pid -> send(pid, message) end
   end
 
@@ -114,6 +115,7 @@ defmodule Dynamo do
 
   @spec worker(%Dynamo{}) :: no_return()
   def worker(state) do
+    IO.puts("#{inspect(whoami())} is waiting for msg.")
     receive do
       {sender,
         :getConfig
@@ -141,9 +143,11 @@ defmodule Dynamo do
          }} ->
           # TODO: Handle an AppendEntryRequest received by a
           # follower
+          IO.puts("#{inspect(whoami())} knows that it needs to add #{inspect(worker)}")
           IO.puts("Add Worker -- #{inspect(whoami())} is going to add worker #{inspect(worker)}")
           state = addWorker(state, worker_name, worker)
           IO.puts("Add Worker -- View aftering inserting this worker: #{inspect(state.view)}")
+          #IO.puts("#{inspect(state)}")
           worker(state)
 
           
@@ -156,7 +160,7 @@ defmodule Dynamo do
            # follower
            IO.puts("Put Request From Client-- #{inspect(whoami())} received put request key: #{key} value: #{value}")
            coordinate_worker = getCoordinatorWorker(state, key)
-
+           IO.puts("#{inspect(whoami())} will send the request to the coordinator #{inspect(coordinate_worker)}")
            send(coordinate_worker, %Dynamo.PutRequestToCoordinateNode{
                                                 client: sender,
                                                 key: key,
@@ -177,7 +181,7 @@ defmodule Dynamo do
             replica_workers = getReplicaWorker(state, key)
             IO.puts("Get replica workers #{inspect(replica_workers)}")
 
-            Enum.each Map.values(replica_workers), fn pid ->
+            Enum.each replica_workers, fn pid ->
               send(pid, %Dynamo.PutRequestToReplicaNode{
                             client: client,
                             key: key,
@@ -195,7 +199,7 @@ defmodule Dynamo do
             }} ->
               # TODO: Handle an AppendEntryRequest received by a
               # follower
-              IO.puts("Put Request to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
+              IO.puts("Put Request to Replica Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
               state = %{state | storage:  Map.put(state.storage, key, value)}
               send(sender,  %Dynamo.PutResponseToCoordinator{
                           client: client,
@@ -212,7 +216,7 @@ defmodule Dynamo do
               }} ->
                 # TODO: Handle an AppendEntryRequest received by a
                 # follower
-                IO.puts("Put Request to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
+                IO.puts("Put Response to Coordinator Node -- #{inspect(whoami())} received put request key: #{key} value: #{value}")
                 state = %{state | put_map:  Map.put(state.put_map, get_hash("put #{key}: #{value}"), Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) + 1)}
                 if Map.fetch(state.put_map, get_hash("put #{key}: #{value}")) >= state.r do
                   send(client, %Dynamo.Message{
@@ -327,6 +331,7 @@ defmodule Dynamo do
 
   def addVirtualNodeHelper(state, worker_name, p) do
     if p > 0 do
+      #IO.puts("adding vn, partition: #{worker_name}#{p}")
       ExHashRing.Ring.add_node(state.virtual_node_ring, "#{worker_name}#{p}", 1)
       addVirtualNodeHelper(state, worker_name, p-1)
     end
@@ -338,8 +343,10 @@ defmodule Dynamo do
     IO.puts("key is #{key}")
     {_, name} = ExHashRing.Ring.find_node(state.virtual_node_ring, key)
     IO.puts("VN name is #{inspect(name)}")
-    {_, worker} = Map.fetch(state.view, String.slice(name, 0..-1))
-    IO.puts("worker is #{inspect(worker)}")
+    IO.puts("#{inspect(state.view)}")
+    coordinator_name = String.slice(name, 0..-2)
+    {_, worker} = Map.fetch(state.view, coordinator_name)
+    IO.puts("coordinator worker is #{inspect(worker)}")
     worker
   end
 
@@ -348,10 +355,26 @@ defmodule Dynamo do
     state
   end
 
+
+  def trim(list, accumulator) do
+    if list == [] do
+        accumulator
+    else
+        [head | tail] = list
+        #name = String.slice(head, 0..-2)
+        #IO.puts("#{inspect(name)}")
+        trim(tail, accumulator ++ [String.slice(head, 0..-2)])
+    end
+  end
+
+
   @spec getReplicaWorker(%Dynamo{}, atom()) :: {%Dynamo{}}
   def getReplicaWorker(state, key) do
     {_, [head | tail]} = ExHashRing.Ring.find_nodes(state.virtual_node_ring, key, state.n)
-    res = :maps.filter fn vn_name, vn -> Enum.member?(tail, String.slice(vn_name, 0..-1)) end, state.view
+    IO.puts("getting vn names")
+    tail = trim(tail, [])
+    IO.puts("#{inspect(tail)}")
+    res = :maps.filter fn vn_name, vn -> name = Enum.member?(tail, vn_name) end, state.view
     Map.values(res)
   end
 

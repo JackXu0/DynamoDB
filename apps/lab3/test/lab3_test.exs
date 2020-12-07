@@ -13,6 +13,8 @@ defmodule Lab3Test do
 
     a = spawn(:a, fn -> Dynamo.become_worker(base_config, "a") end)
 
+    :timer.sleep(1000)
+
     send(:a, :getConfig)
     config =
     receive do
@@ -22,11 +24,12 @@ defmodule Lab3Test do
       5_000 -> assert false
     end
 
-    IO.puts("1111 #{inspect(config)}")
-
+    #IO.puts("1111 #{inspect(config)}")
+    :timer.sleep(1000)
     b = spawn(:b, fn -> Dynamo.become_worker(config, "b") end)
-
-    send(b, :getConfig)
+    :timer.sleep(1000)
+    IO.puts("b added to config")
+    send(:b, :getConfig)
         config =
         receive do
           {_, %Dynamo{}} -> %Dynamo{}
@@ -34,13 +37,14 @@ defmodule Lab3Test do
         after
           30_000 -> assert false
         end
-
+    #IO.puts("1111 #{inspect(config)}")
+    :timer.sleep(1000)
     c = spawn(:c, fn -> Dynamo.become_worker(config, "c") end)
-
-    send(:a, %Dynamo.AddWorkerRequest{worker: b, worker_name: "b"})
-    send(:a, %Dynamo.AddWorkerRequest{worker: c, worker_name: "c"})
-    send(:a, %Dynamo.AddVirtualNodeRequest{worker: b, worker_name: "b"})
-    send(:a, %Dynamo.AddVirtualNodeRequest{worker: c, worker_name: "c"})
+    :timer.sleep(2000)
+    #send(:a, %Dynamo.AddWorkerRequest{worker: b, worker_name: "b"})
+    #send(:a, %Dynamo.AddWorkerRequest{worker: c, worker_name: "c"})
+    #send(:a, %Dynamo.AddVirtualNodeRequest{worker: b, worker_name: "b"})
+    #send(:a, %Dynamo.AddVirtualNodeRequest{worker: c, worker_name: "c"})
     send(:a, %Dynamo.PutRequestFromClient{key: "key1", value: 111})
 
     handle = Process.monitor(a)
