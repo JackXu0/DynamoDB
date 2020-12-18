@@ -6,120 +6,97 @@ defmodule Lab3Test do
   import Kernel,
     except: [spawn: 3, spawn: 1, spawn_link: 1, spawn_link: 3, send: 2]
 
+
   test "Nothing crashes during startup and heartbeats" do
-    Emulation.init()
-    
-    # p, n ,r, w
-    config =
-      Dynamo.new_configuration(:a, 3, 8, 1, 1, 100)
+      Emulation.init()
+      # 0, 0.1, 0.3, 0.5, 0.7, 1, 1.5, 2 
+      Emulation.append_fuzzers([Fuzzers.delay(4.0)])
+      # Emulation.mark_unfuzzable()
+      configs = [
+        Dynamo.new_configuration(:a, 3, 5, 1, 1, 0),
+        Dynamo.new_configuration(:a, 3, 5, 2, 2, 0),
+        Dynamo.new_configuration(:a, 3, 5, 3, 3, 0),
 
-    nodes = %{1 => "a", 2 => "b", 3 => "c", 4 => "d", 5 => "e", 6 => "f", 7 => "g", 8 => "h", 9 => "i", 10 => "j",
-    11 => "1a", 12 => "1b", 13 => "1c", 14 => "1d", 15 => "1e", 16 => "1f", 17 => "1g", 18 => "1h", 19 => "1i", 20 => "1j"
-  }
-    IO.inspect(nodes)
+      ]
+      # p, n ,r, w
+      config =
+        Dynamo.new_configuration(:a, 3, 5, 1, 1, 0)
 
-    a = spawn(:a, fn -> Dynamo.become_worker(config, "a") end)
-    for {x, y} <- nodes do  
-      if x > 1 do
-        IO.puts(y)
-        atom = String.to_atom(y)
+      nodes = %{1 => "a", 2 => "b", 3 => "c", 4 => "d", 5 => "e", 6 => "f", 7 => "g", 8 => "h", 9 => "i", 10 => "j",
+        11 => "k", 12 => "l", 13 => "m", 14 => "n", 15 => "o", 16 => "p", 17 => "q", 18 => "r", 19 => "s", 20 => "t"
+      }
+      # IO.inspect(nodes)
+      ans = 
+      0..899
+      |> Enum.map fn i ->
+        # %{state | merkle_trees:  [MapSet.new()]}
+        config = %{config | virtual_node_ring: elem(ExHashRing.Ring.start_link(), 1)}
+        a = spawn(String.to_atom("a#{i}"), fn -> Dynamo.become_worker(config, "a#{i}") end)
+        pids = nodes
+        |> Enum.map fn {x, y} ->
+          if x > 1 do
+            # IO.puts("y: #{inspect(y)}")
+            atom = String.to_atom("#{y}#{i}")
 
-        send(String.to_atom(nodes[x-1]), :getConfig)
-        config =
-        receive do
-          # {_, %Dynamo{}} -> %Dynamo{}
-          msg -> msg
-        after
-          5_000 -> assert false
+            send(String.to_atom("#{nodes[x-1]}#{i}"), :getConfig)
+            config =
+            receive do
+              # {_, %Dynamo{}} -> %Dynamo{}
+              msg -> msg
+            after
+              5_000 -> assert false
+            end
+
+            spawn(atom, fn -> Dynamo.become_worker(config, "#{y}#{i}") end)
+
+          end
         end
 
-        spawn(atom, fn -> Dynamo.become_worker(config, y) end)
-        
-        # :timer.sleep(1000)
-        
-        
+        :timer.sleep(50)
+        put_node = Enum.random(Map.values(nodes))
+        # IO.puts("Round #{i} put node: #{put_node}")
+        send(String.to_atom("#{put_node}#{i}"), %Dynamo.PutRequestFromClient{key: "key#{i}", value: 1})
+
+        handle = Process.monitor(a)
+
+        receive do
+          {:DOWN, ^handle, _, _, _} -> true
+
+          msg -> 
+            # IO.puts("Put response before get #{inspect(msg)}")
+            get_node = Enum.random(Map.values(nodes))
+            # IO.puts("Round #{i} get node: #{get_node}")
+            send(String.to_atom("#{get_node}#{i}"), %Dynamo.GetRequestFromClient{key: "key#{i}"})
+            # IO.puts("after sending get")
+        after
+          30_0000 -> assert false
+        end
+
+        receive do
+          {:DOWN, ^handle, _, _, _} -> true
+          
+          %Dynamo.GetResponseToClient{key: key, value: value} ->
+            IO.puts("GET response #{i} #{value}")
+            value
+          msg -> 
+            IO.puts("GET response #{i} #{inspect(msg)}")
+            # List.insert_at(ans, 0, 0)
+        after
+          30_0000 -> assert false
+        end
+        # Enum.each pids, fn p ->
+        #   IO.inspect(p)
+        #   Process.exit(p, :kill)
+        # end
       end
-    end
+      IO.inspect(ans)
+      count = Enum.count(Enum.filter(ans, fn a -> a != nil end))
+      IO.puts("Success attemps: #{count}; Success rate: #{count/900}")
 
-    # a = spawn(:a, fn -> Dynamo.become_worker(base_config, "a") end)
-
-    # :timer.sleep(1000)
-
-    # send(:a, :getConfig)
-    # config =
-    # receive do
-    #   # {_, %Dynamo{}} -> %Dynamo{}
-    #   msg -> msg
-    # after
-    #   5_000 -> assert false
-    # end
-
-    # #IO.puts("1111 #{inspect(config)}")
-    # :timer.sleep(1000)
-    # b = spawn(:b, fn -> Dynamo.become_worker(config, "b") end)
-    # :timer.sleep(1000)
-    # IO.puts("b added to config")
-    # send(:b, :getConfig)
-    #     config =
-    #     receive do
-    #       # {_, %Dynamo{}} -> %Dynamo{}
-    #       msg -> msg
-    #     after
-    #       30_000 -> assert false
-    #     end
-    # #IO.puts("1111 #{inspect(config)}")
-    # :timer.sleep(1000)
-    # c = spawn(:c, fn -> Dynamo.become_worker(config, "c") end)
-
-    # :timer.sleep(1000)
-    # IO.puts("c added to config")
-    # send(:c, :getConfig)
-    #     config =
-    #     receive do
-    #           {_, %Dynamo{}} -> %Dynamo{}
-    #           msg -> msg
-    #         after
-    #           30_000 -> assert false
-    #         end
-
-    # :timer.sleep(1000)
-    # d = spawn(:d, fn -> Dynamo.become_worker(config, "d") end)
-
-
-
-    :timer.sleep(2000)
-
-    # Emulation.append_fuzzers([Fuzzers.delay(30)])
-
-    send(:a, %Dynamo.PutRequestFromClient{key: "key1", value: 111})
-    
-
-    handle = Process.monitor(a)
-
-    receive do
-      {:DOWN, ^handle, _, _, _} -> true
-
-      msg -> 
-        IO.puts("Put response before get #{inspect(msg)}")
-        send(:f, %Dynamo.GetRequestFromClient{key: "key1"})
-        IO.puts("after sending get")
+      
     after
-      30_000 -> assert false
+      Emulation.terminate()
     end
-
-    receive do
-      {:DOWN, ^handle, _, _, _} -> true
-
-      msg -> 
-        IO.puts("GET response #{inspect(msg)}")
-    after
-      30_000 -> assert false
-    end
-
-
-  after
-    Emulation.terminate()
-  end
 
   # test "RSM operations work" do
   #   Emulation.init()
